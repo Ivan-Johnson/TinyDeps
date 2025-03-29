@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "itj_daemon",
     "autolock",
 ]
 resolver = "2"

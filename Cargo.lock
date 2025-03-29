@@ -39,7 +39,12 @@ name = "autolock"
 version = "0.1.0"
 dependencies = [
  "argh",
+ "itj_daemon",
 ]
+
+[[package]]
+name = "itj_daemon"
+version = "0.1.0"
 
 [[package]]
 name = "proc-macro2"
