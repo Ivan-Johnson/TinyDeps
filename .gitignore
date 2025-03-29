@@ -1,0 +1,10 @@
+*.rsr
+.#*
+/.dev_database.sqlite
+/log.txt
+/log_wip.txt
+/notes.txt
+/open_files.txt
+/result
+/target
+/TODO.txt
