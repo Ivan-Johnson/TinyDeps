@@ -1,0 +1,9 @@
+[package]
+name = "autolock"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# argh is owned by Google: https://github.com/google/argh/blob/master/argh/Cargo.toml
+# I trust them enough to automatically pull in new versions
+argh = ">=0.1.12"

@@ -1,0 +1,26 @@
+[workspace]
+members = [
+    "autolock",
+]
+resolver = "2"
+
+[workspace.package]
+publish = false
+
+[profile.release]
+lto = true
+overflow-checks = true
+panic = "abort"
+
+# # Uncomment to build with `dev` profile: https://doc.rust-lang.org/cargo/reference/profiles.html#dev
+# opt-level = 0
+# debug = true
+# split-debuginfo = '...'  # Platform-specific.
+# strip = "none"
+# debug-assertions = true
+# overflow-checks = true
+# lto = false
+# panic = 'unwind'
+# incremental = true
+# codegen-units = 256
+# rpath = false
