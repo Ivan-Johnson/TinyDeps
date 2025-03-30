@@ -6,6 +6,7 @@ use std::process::ChildStdin;
 use std::process::ChildStdout;
 use std::process::Command;
 use std::process::Stdio;
+use std::time::Duration;
 
 use crate::ipc::base::IPC1;
 use crate::TcpPort;
@@ -15,6 +16,7 @@ use crate::TcpPort;
 const MAX_WRITE_SIZE: usize = 4_000;
 
 pub struct IPCNC {
+	builder: Command,
 	child: Child,
 	stdin: ChildStdin,
 	stdout: ChildStdout,
@@ -22,6 +24,22 @@ pub struct IPCNC {
 }
 
 impl IPC1 for IPCNC {
+	fn restart(&mut self) {
+		self.wait_for_successful_exit(Duration::from_millis(50));
+
+		// TODO dedupe this & `spawn_with_io`
+		let mut child = self.builder.spawn().expect("Failed to launch `nc` server");
+		let stdin = child.stdin.take().expect("Failed to open stdin");
+		let stdout = child.stdout.take().expect("Failed to open stdin");
+		let stderr = child.stderr.take().expect("Failed to open stderr");
+
+		self.child = child;
+		self.stdin = stdin;
+		self.stdout = stdout;
+		self.stderr = stderr;
+		self.assert_not_failed();
+	}
+
 	fn read(&mut self) -> Vec<u8> {
 		self.assert_is_running();
 		let mut buffer: [u8; MAX_WRITE_SIZE] = [0; MAX_WRITE_SIZE];
@@ -38,6 +56,7 @@ impl IPC1 for IPCNC {
 	}
 }
 
+// TODO dedupe all the asserts
 impl IPCNC {
 	fn assert_is_running(&mut self) {
 		let status = self
@@ -45,6 +64,59 @@ impl IPCNC {
 			.try_wait()
 			.expect("Unable to determine if nc has exited or not??");
 		assert_eq!(None, status, "ERROR: nc has exited");
+	}
+
+	fn wait_for_finish(&mut self, timeout: Duration) {
+		let max_time = timeout;
+		let cur_time = Duration::from_secs(0);
+		while cur_time < max_time {
+			let status = self
+				.child
+				.try_wait()
+				.expect("Unable to determine if nc has exited or not??");
+			if status.is_some() {
+				// nc has exited; return.
+				return;
+			}
+
+			std::thread::sleep(Duration::from_millis(10));
+		}
+		panic!("Timed out waiting for nc to finish")
+	}
+
+	fn wait_for_successful_exit(&mut self, timeout: Duration) {
+		self.wait_for_finish(timeout);
+		let status = self
+			.child
+			.try_wait()
+			.expect("Unable to determine if nc has exited or not??")
+			.expect("`wait_for_finish` returned successfully, so nc must have finished");
+		if status.success() {
+			return;
+		}
+
+		println!("ERROR: nc has crashed");
+
+		// stdout
+		let mut stdout_str = String::new();
+		let stdout_ok = self.stdout.read_to_string(&mut stdout_str);
+		if stdout_ok.is_ok() {
+			println!("stdout: \"{stdout_str}\"");
+		} else {
+			println!("stdout not available");
+		}
+
+		// stderr
+		let mut stderr_str = String::new();
+		let stderr_ok = self.stderr.read_to_string(&mut stderr_str);
+		if stderr_ok.is_ok() {
+			println!("stderr: \"{stderr_str}\"");
+		} else {
+			println!("stderr not available");
+		}
+
+		// exit
+		panic!();
 	}
 
 	fn assert_not_failed(&mut self) {
@@ -95,6 +167,7 @@ impl IPCNC {
 		let stderr = child.stderr.take().expect("Failed to open stderr");
 
 		let mut obj = Self {
+			builder,
 			child,
 			stdin,
 			stdout,

@@ -27,6 +27,7 @@ impl<TMsg, TDPK: DaemonDPK<TMsg>> Server<TMsg, TDPK> {
 			}
 			let msg: TMsg = TDPK::deserialize(&bytes);
 			TDPK::process(&msg);
+			self.ipc.restart();
 		}
 	}
 }
