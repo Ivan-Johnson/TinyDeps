@@ -26,6 +26,11 @@ impl IPC1 for IPCNC {
 			vec![]
 		}
 	}
+
+	fn send(&self, msg: &Vec<u8>) {
+		// TODO
+		println!("Pretending to send message {msg:?}");
+	}
 }
 
 impl IPCNC {

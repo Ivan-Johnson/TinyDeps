@@ -11,7 +11,7 @@ pub enum AutolockMsg {
 pub struct AutolockDPK {}
 
 impl DaemonDPK<AutolockMsg> for AutolockDPK {
-	fn serialize(msg: AutolockMsg) -> Vec<u8> {
+	fn serialize(msg: &AutolockMsg) -> Vec<u8> {
 		match msg {
 			AutolockMsg::HelloWorld => vec![0],
 			AutolockMsg::GoodbyeWorld => vec![1],

@@ -1,8 +1,10 @@
+use argh::FromArgValue;
 use std::time::Duration;
 
 use crate::message::AutolockDPK;
 use crate::message::AutolockMsg;
 use argh::FromArgs;
+use itj_daemon::ClientBuilder;
 use itj_daemon::ServerBuilder;
 use itj_daemon::TcpPort;
 
@@ -38,11 +40,42 @@ impl SubcommandCLI {
 /// TODO document this
 #[derive(FromArgs)]
 #[argh(subcommand, name = "demo")]
-struct DemoConfig {}
+struct DemoConfig {
+	/// TODO document this
+	#[argh(positional, default = "DemoMsg::Hello")]
+	msg: DemoMsg,
+}
+
+// TODO argh v0.1.14 will support this?
+// https://github.com/google/argh/commit/79d3022364d7df5f43c4b7e8e1826d50dd04e669
+// #[derive(FromArgValue)]
+enum DemoMsg {
+	// #[argh(name = "hello")]
+	Hello,
+	_Goodbye,
+}
+
+impl DemoMsg {
+	pub fn convert(&self) -> AutolockMsg {
+		match self {
+			DemoMsg::Hello => AutolockMsg::HelloWorld,
+			DemoMsg::_Goodbye => AutolockMsg::GoodbyeWorld,
+		}
+	}
+}
+
+impl FromArgValue for DemoMsg {
+	fn from_arg_value(_: &str) -> Result<Self, String> {
+		todo!();
+	}
+}
 
 impl DemoConfig {
 	pub fn main(self) -> ! {
-		todo!();
+		let builder: ClientBuilder<AutolockMsg, AutolockDPK> = ClientBuilder::default();
+		let client = builder.build();
+		client.send_message(&self.msg.convert());
+		std::process::exit(0)
 	}
 }
 
