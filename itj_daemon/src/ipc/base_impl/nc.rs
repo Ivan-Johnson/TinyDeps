@@ -92,28 +92,8 @@ impl IPCNC {
 			return;
 		}
 
-		println!("ERROR: nc has crashed");
-
-		// stdout
-		let mut stdout_str = String::new();
-		let stdout_ok = self.stdout.read_to_string(&mut stdout_str);
-		if stdout_ok.is_ok() {
-			println!("stdout: \"{stdout_str}\"");
-		} else {
-			println!("stdout not available");
-		}
-
-		// stderr
-		let mut stderr_str = String::new();
-		let stderr_ok = self.stderr.read_to_string(&mut stderr_str);
-		if stderr_ok.is_ok() {
-			println!("stderr: \"{stderr_str}\"");
-		} else {
-			println!("stderr not available");
-		}
-
-		// exit
-		panic!();
+		self.print_child_logs();
+		panic!("ERROR: Expected nc to exit succesfully, but it crashed.");
 	}
 
 	fn assert_not_failed(&mut self) {
@@ -129,9 +109,13 @@ impl IPCNC {
 			// nc finished successfully
 			return;
 		};
-		println!("ERROR: nc has crashed");
 
-		// stdout
+		self.print_child_logs();
+		panic!("ERROR: nc has crashed. See logs above.");
+	}
+
+	fn print_child_logs(&mut self) {
+		// print stdout
 		let mut stdout_str = String::new();
 		let stdout_ok = self.stdout.read_to_string(&mut stdout_str);
 		if stdout_ok.is_ok() {
@@ -140,7 +124,7 @@ impl IPCNC {
 			println!("stdout not available");
 		}
 
-		// stderr
+		// print stderr
 		let mut stderr_str = String::new();
 		let stderr_ok = self.stderr.read_to_string(&mut stderr_str);
 		if stderr_ok.is_ok() {
@@ -148,9 +132,6 @@ impl IPCNC {
 		} else {
 			println!("stderr not available");
 		}
-
-		// exit
-		std::process::exit(1);
 	}
 
 	/// Return the child's stdin, stdout, and stderr pipes.
