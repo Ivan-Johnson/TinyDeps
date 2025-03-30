@@ -161,7 +161,22 @@ impl IPCNC {
 		(stdin, stdout, stderr)
 	}
 
-	fn spawn_with_io(mut builder: Command) -> Self {
+	pub fn open_server(port: TcpPort) -> Self {
+		let mut builder = Command::new("nc");
+		builder.arg("-l").arg(format!("{port}"));
+		Self::open_shared(builder)
+	}
+
+	pub fn open_client(port: TcpPort) -> Self {
+		let mut builder = Command::new("nc");
+		builder.arg("-N").arg("127.0.0.1").arg(format!("{port}"));
+		Self::open_shared(builder)
+	}
+
+	/// The first few lines of `open_client` and `open_server` are different
+	/// from each other. Everything after that is shared and done in this
+	/// common function.
+	fn open_shared(mut builder: Command) -> Self {
 		builder.stdin(Stdio::piped())
 			.stdout(Stdio::piped())
 			.stderr(Stdio::piped());
@@ -178,17 +193,5 @@ impl IPCNC {
 		};
 		obj.assert_not_failed();
 		obj
-	}
-
-	pub fn open_server(port: TcpPort) -> Self {
-		let mut builder = Command::new("nc");
-		builder.arg("-l").arg(format!("{port}"));
-		Self::spawn_with_io(builder)
-	}
-
-	pub fn open_client(port: TcpPort) -> Self {
-		let mut builder = Command::new("nc");
-		builder.arg("-N").arg("127.0.0.1").arg(format!("{port}"));
-		Self::spawn_with_io(builder)
 	}
 }
