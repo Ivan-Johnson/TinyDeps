@@ -28,6 +28,13 @@ impl MyParsedArgs {
 enum SubcommandCLI {
 	StartDaemon(StartDaemonConfig),
 	Demo(DemoConfig),
+	// TODO:
+	//
+	// * SetServerName: `cargo run set-server-name Alice`
+	//
+	// * Greet: `cargo run greet Bob` -> send string "Bob" to server. Server
+	//   responds with string "Hello Bob, I am Alice". Client prints that
+	//   string.
 }
 
 impl SubcommandCLI {
