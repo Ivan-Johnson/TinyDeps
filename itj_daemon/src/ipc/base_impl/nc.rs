@@ -53,7 +53,6 @@ impl IPC1 for IPCNC {
 	}
 }
 
-// TODO dedupe all the asserts
 impl IPCNC {
 	fn assert_is_running(&mut self) {
 		let status = self
@@ -83,17 +82,7 @@ impl IPCNC {
 
 	fn wait_for_successful_exit(&mut self, timeout: Duration) {
 		self.wait_for_finish(timeout);
-		let status = self
-			.child
-			.try_wait()
-			.expect("Unable to determine if nc has exited or not??")
-			.expect("`wait_for_finish` returned successfully, so nc must have finished");
-		if status.success() {
-			return;
-		}
-
-		self.print_child_logs();
-		panic!("ERROR: Expected nc to exit succesfully, but it crashed.");
+		self.assert_not_failed();
 	}
 
 	fn assert_not_failed(&mut self) {
