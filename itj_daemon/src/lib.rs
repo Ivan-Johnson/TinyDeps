@@ -6,7 +6,6 @@ mod message;
 mod server;
 
 pub use client::Client;
-pub use client::ClientBuilder;
 pub use ipc::base::TcpPort;
 pub use message::DaemonDPK;
 pub use server::Server;

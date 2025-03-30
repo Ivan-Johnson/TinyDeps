@@ -1,4 +1,5 @@
 use std::io::Read;
+use std::io::Write;
 use std::process::Child;
 use std::process::ChildStderr;
 use std::process::ChildStdin;
@@ -15,7 +16,7 @@ const MAX_WRITE_SIZE: usize = 4_000;
 
 pub struct IPCNC {
 	child: Child,
-	_stdin: ChildStdin,
+	stdin: ChildStdin,
 	stdout: ChildStdout,
 	stderr: ChildStderr,
 }
@@ -30,9 +31,10 @@ impl IPC1 for IPCNC {
 		buffer[0..read_size].to_vec()
 	}
 
-	fn send(&mut self, _msg: &Vec<u8>) {
-		self.assert_not_failed();
-		todo!()
+	fn send(&mut self, msg: &Vec<u8>) {
+		self.assert_is_running();
+		println!("Writing {msg:?}");
+		self.stdin.write_all(msg).unwrap();
 	}
 }
 
@@ -82,21 +84,19 @@ impl IPCNC {
 		std::process::exit(1);
 	}
 
-	pub fn open_server(port: TcpPort) -> Self {
-		let mut builder = Command::new("nc");
-		builder.arg("-l")
-			.arg(format!("{port}"))
-			.stdin(Stdio::piped())
+	fn spawn_with_io(mut builder: Command) -> Self {
+		builder.stdin(Stdio::piped())
 			.stdout(Stdio::piped())
 			.stderr(Stdio::piped());
-		println!("nc builder: {builder:?}");
+		println!("Running: {builder:?}");
 		let mut child = builder.spawn().expect("Failed to launch `nc` server");
-		let _stdin = child.stdin.take().expect("Failed to open stdin");
+		let stdin = child.stdin.take().expect("Failed to open stdin");
 		let stdout = child.stdout.take().expect("Failed to open stdin");
 		let stderr = child.stderr.take().expect("Failed to open stderr");
+
 		let mut obj = Self {
 			child,
-			_stdin,
+			stdin,
 			stdout,
 			stderr,
 		};
@@ -104,15 +104,15 @@ impl IPCNC {
 		obj
 	}
 
-	pub fn open_client(_port: TcpPort) -> Self {
-		// let mut builder = Command::new("nc");
-		// builder.arg("-N")
-		// 	.arg("127.0.0.1")
-		// 	.arg(format!("{port}"))
-		// 	.stdin(Stdio::piped())
-		// 	.stdout(Stdio::piped());
-		// let child = builder.spawn();
-		// Self { port }
-		todo!()
+	pub fn open_server(port: TcpPort) -> Self {
+		let mut builder = Command::new("nc");
+		builder.arg("-l").arg(format!("{port}"));
+		Self::spawn_with_io(builder)
+	}
+
+	pub fn open_client(port: TcpPort) -> Self {
+		let mut builder = Command::new("nc");
+		builder.arg("-N").arg("127.0.0.1").arg(format!("{port}"));
+		Self::spawn_with_io(builder)
 	}
 }

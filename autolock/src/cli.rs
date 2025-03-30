@@ -1,12 +1,14 @@
 use argh::FromArgValue;
+use itj_daemon::Client;
 use itj_daemon::Server;
 use std::time::Duration;
 
 use crate::message::AutolockDPK;
 use crate::message::AutolockMsg;
 use argh::FromArgs;
-use itj_daemon::ClientBuilder;
 use itj_daemon::TcpPort;
+
+const DEFAULT_PORT: TcpPort = 15829;
 
 /// TODO document this
 #[derive(FromArgs)]
@@ -42,6 +44,9 @@ impl SubcommandCLI {
 #[argh(subcommand, name = "demo")]
 struct DemoConfig {
 	/// TODO document this
+	#[argh(option, default = "DEFAULT_PORT")]
+	port: TcpPort,
+	/// TODO document this
 	#[argh(positional, default = "DemoMsg::Hello")]
 	msg: DemoMsg,
 }
@@ -65,15 +70,18 @@ impl DemoMsg {
 }
 
 impl FromArgValue for DemoMsg {
-	fn from_arg_value(_: &str) -> Result<Self, String> {
-		todo!();
+	fn from_arg_value(arg: &str) -> Result<Self, String> {
+		match arg {
+			"hello" => Ok(DemoMsg::Hello),
+			"goodbye" => Ok(DemoMsg::_Goodbye),
+			&_ => Err(format!("\"{arg}\" could not be parsed as a message")),
+		}
 	}
 }
 
 impl DemoConfig {
 	pub fn main(self) -> ! {
-		let builder: ClientBuilder<AutolockMsg, AutolockDPK> = ClientBuilder::default();
-		let mut client = builder.build();
+		let mut client = Client::<AutolockMsg, AutolockDPK>::new(self.port);
 		client.send_message(&self.msg.convert());
 		std::process::exit(0)
 	}
@@ -84,7 +92,7 @@ impl DemoConfig {
 #[argh(subcommand, name = "daemon")]
 struct StartDaemonConfig {
 	/// TODO document this
-	#[argh(option, default = "15829")]
+	#[argh(option, default = "DEFAULT_PORT")]
 	port: TcpPort,
 }
 
