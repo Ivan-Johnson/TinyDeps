@@ -1,23 +1,8 @@
 use crate::ipc::base::IPC1;
 use crate::ipc::base_impl::nc::IPCNC;
 use crate::message::DaemonDPK;
+use crate::TcpPort;
 use std::marker::PhantomData;
-
-#[derive(Default)]
-pub struct ServerBuilder<TMsg, TDPK: DaemonDPK<TMsg>> {
-	_phantom_tdpk: PhantomData<TDPK>,
-	_phantom_tmsg: PhantomData<TMsg>,
-}
-
-impl<TMsg, TDPK: DaemonDPK<TMsg>> ServerBuilder<TMsg, TDPK> {
-	pub fn build(&self) -> Server<TMsg, TDPK> {
-		Server {
-			ipc: Box::new(IPCNC::new(123)),
-			_phantom_tdpk: self._phantom_tdpk,
-			_phantom_tmsg: self._phantom_tmsg,
-		}
-	}
-}
 
 pub struct Server<TMsg, TDPK: DaemonDPK<TMsg>> {
 	ipc: Box<dyn IPC1>,
@@ -26,6 +11,14 @@ pub struct Server<TMsg, TDPK: DaemonDPK<TMsg>> {
 }
 
 impl<TMsg, TDPK: DaemonDPK<TMsg>> Server<TMsg, TDPK> {
+	pub fn new(port: TcpPort) -> Self {
+		Self {
+			ipc: Box::new(IPCNC::open_server(port)),
+			_phantom_tdpk: PhantomData {},
+			_phantom_tmsg: PhantomData {},
+		}
+	}
+
 	pub fn poll(&mut self) {
 		loop {
 			let bytes = self.ipc.read();

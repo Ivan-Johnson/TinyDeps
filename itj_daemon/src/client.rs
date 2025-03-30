@@ -12,7 +12,7 @@ pub struct ClientBuilder<TMsg, TDPK: DaemonDPK<TMsg>> {
 impl<TMsg, TDPK: DaemonDPK<TMsg>> ClientBuilder<TMsg, TDPK> {
 	pub fn build(&self) -> Client<TMsg, TDPK> {
 		Client {
-			ipc: Box::new(IPCNC::new(123)),
+			ipc: Box::new(IPCNC::open_client(123)),
 			_phantom_tdpk: self._phantom_tdpk,
 			_phantom_tmsg: self._phantom_tmsg,
 		}
@@ -26,7 +26,7 @@ pub struct Client<TMsg, TDPK: DaemonDPK<TMsg>> {
 }
 
 impl<TMsg, TDPK: DaemonDPK<TMsg>> Client<TMsg, TDPK> {
-	pub fn send_message(&self, message: &TMsg) {
+	pub fn send_message(&mut self, message: &TMsg) {
 		let bytes = TDPK::serialize(message);
 		self.ipc.send(&bytes);
 	}

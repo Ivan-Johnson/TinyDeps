@@ -1,11 +1,11 @@
 use argh::FromArgValue;
+use itj_daemon::Server;
 use std::time::Duration;
 
 use crate::message::AutolockDPK;
 use crate::message::AutolockMsg;
 use argh::FromArgs;
 use itj_daemon::ClientBuilder;
-use itj_daemon::ServerBuilder;
 use itj_daemon::TcpPort;
 
 /// TODO document this
@@ -73,7 +73,7 @@ impl FromArgValue for DemoMsg {
 impl DemoConfig {
 	pub fn main(self) -> ! {
 		let builder: ClientBuilder<AutolockMsg, AutolockDPK> = ClientBuilder::default();
-		let client = builder.build();
+		let mut client = builder.build();
 		client.send_message(&self.msg.convert());
 		std::process::exit(0)
 	}
@@ -85,13 +85,12 @@ impl DemoConfig {
 struct StartDaemonConfig {
 	/// TODO document this
 	#[argh(option, default = "15829")]
-	_annouce_port: TcpPort,
+	port: TcpPort,
 }
 
 impl StartDaemonConfig {
 	pub fn main(self) -> ! {
-		let builder: ServerBuilder<AutolockMsg, AutolockDPK> = ServerBuilder::default();
-		let mut server = builder.build();
+		let mut server = Server::<AutolockMsg, AutolockDPK>::new(self.port);
 
 		let mut count = 0;
 		loop {
