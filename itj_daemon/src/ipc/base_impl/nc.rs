@@ -27,11 +27,8 @@ impl IPC1 for IPCNC {
 	fn restart(&mut self) {
 		self.wait_for_successful_exit(Duration::from_millis(50));
 
-		// TODO dedupe this & `spawn_with_io`
-		let mut child = self.builder.spawn().expect("Failed to launch `nc` server");
-		let stdin = child.stdin.take().expect("Failed to open stdin");
-		let stdout = child.stdout.take().expect("Failed to open stdin");
-		let stderr = child.stderr.take().expect("Failed to open stderr");
+		let mut child = self.builder.spawn().expect("Failed to spawn nc");
+		let (stdin, stdout, stderr) = Self::take_io(&mut child);
 
 		self.child = child;
 		self.stdin = stdin;
@@ -156,15 +153,21 @@ impl IPCNC {
 		std::process::exit(1);
 	}
 
+	/// Return the child's stdin, stdout, and stderr pipes.
+	fn take_io(child: &mut Child) -> (ChildStdin, ChildStdout, ChildStderr) {
+		let stdin = child.stdin.take().expect("Failed to open stdin");
+		let stdout = child.stdout.take().expect("Failed to open stdin");
+		let stderr = child.stderr.take().expect("Failed to open stderr");
+		(stdin, stdout, stderr)
+	}
+
 	fn spawn_with_io(mut builder: Command) -> Self {
 		builder.stdin(Stdio::piped())
 			.stdout(Stdio::piped())
 			.stderr(Stdio::piped());
 		println!("Running: {builder:?}");
-		let mut child = builder.spawn().expect("Failed to launch `nc` server");
-		let stdin = child.stdin.take().expect("Failed to open stdin");
-		let stdout = child.stdout.take().expect("Failed to open stdin");
-		let stderr = child.stderr.take().expect("Failed to open stderr");
+		let mut child = builder.spawn().expect("Failed to spawn nc");
+		let (stdin, stdout, stderr) = Self::take_io(&mut child);
 
 		let mut obj = Self {
 			builder,
