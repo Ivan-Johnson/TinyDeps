@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-itj_tiny_deps = {version=">=0.1.0", path="../itj_tiny_deps"}
+itj_tiny_deps = {version=">=0.1.0", path="../itj_tiny_deps", features = ["ipc", "daemon"]}
 # argh is owned by Google: https://github.com/google/argh/blob/master/argh/Cargo.toml
 # I trust them enough to automatically pull in new versions
 argh = ">=0.1.12"

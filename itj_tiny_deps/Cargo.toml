@@ -2,3 +2,7 @@
 name = "itj_tiny_deps"
 version = "0.1.0"
 edition = "2021"
+
+[features]
+ipc = []
+daemon = ["ipc"]
