@@ -8,8 +8,8 @@ use std::process::Command;
 use std::process::Stdio;
 use std::time::Duration;
 
-use crate::ipc::base::IPC1;
-use crate::TcpPort;
+use crate::ipc::TcpPort;
+use crate::ipc::IPC;
 
 /// IIRC Linux guarantees that writes smaler than 4k are atomic; this size was
 /// choosen accordingly.
@@ -23,7 +23,7 @@ pub struct IPCNC {
 	stderr: ChildStderr,
 }
 
-impl IPC1 for IPCNC {
+impl IPC for IPCNC {
 	fn restart(&mut self) {
 		self.wait_for_successful_exit(Duration::from_millis(50));
 

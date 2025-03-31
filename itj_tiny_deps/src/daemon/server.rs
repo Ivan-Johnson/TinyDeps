@@ -1,11 +1,11 @@
-use crate::ipc::base::IPC1;
-use crate::ipc::base_impl::nc::IPCNC;
-use crate::message::DaemonDPK;
-use crate::TcpPort;
+use crate::daemon::message::DaemonDPK;
+use crate::ipc::TcpPort;
+use crate::ipc::IPC;
+use crate::ipc::IPCNC;
 use std::marker::PhantomData;
 
 pub struct Server<TMsg, TDPK: DaemonDPK<TMsg>> {
-	ipc: Box<dyn IPC1>,
+	ipc: Box<dyn IPC>,
 	_phantom_tdpk: PhantomData<TDPK>,
 	_phantom_tmsg: PhantomData<TMsg>,
 }

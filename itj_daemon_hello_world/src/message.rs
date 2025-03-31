@@ -1,4 +1,4 @@
-use itj_tiny_deps::DaemonDPK;
+use itj_tiny_deps::daemon::DaemonDPK;
 
 #[derive(Debug)]
 pub enum AutolockMsg {

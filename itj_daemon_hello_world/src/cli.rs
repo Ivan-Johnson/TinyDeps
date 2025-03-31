@@ -1,9 +1,9 @@
 use crate::message::AutolockDPK;
 use crate::message::AutolockMsg;
 use argh::FromArgs;
-use itj_tiny_deps::Client;
-use itj_tiny_deps::Server;
-use itj_tiny_deps::TcpPort;
+use itj_tiny_deps::daemon::Client;
+use itj_tiny_deps::daemon::Server;
+use itj_tiny_deps::ipc::TcpPort;
 use std::time::Duration;
 
 const DEFAULT_PORT: TcpPort = 15829;
