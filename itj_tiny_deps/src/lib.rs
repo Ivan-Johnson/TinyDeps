@@ -5,3 +5,5 @@
 pub mod daemon;
 #[cfg(feature = "ipc")]
 pub mod ipc;
+#[cfg(feature = "random")]
+pub mod random;
