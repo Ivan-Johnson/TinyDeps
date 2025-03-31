@@ -35,15 +35,15 @@ dependencies = [
 ]
 
 [[package]]
-name = "autolock"
+name = "itj_daemon_hello_world"
 version = "0.1.0"
 dependencies = [
  "argh",
- "itj_daemon",
+ "itj_tiny_deps",
 ]
 
 [[package]]
-name = "itj_daemon"
+name = "itj_tiny_deps"
 version = "0.1.0"
 
 [[package]]

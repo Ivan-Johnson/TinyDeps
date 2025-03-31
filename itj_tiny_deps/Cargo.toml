@@ -1,4 +1,4 @@
 [package]
-name = "itj_daemon"
+name = "itj_tiny_deps"
 version = "0.1.0"
 edition = "2021"
