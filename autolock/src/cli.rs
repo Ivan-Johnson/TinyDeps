@@ -1,4 +1,3 @@
-use argh::FromArgValue;
 use itj_daemon::Client;
 use itj_daemon::Server;
 use std::time::Duration;
@@ -27,69 +26,60 @@ impl MyParsedArgs {
 #[argh(subcommand)]
 enum SubcommandCLI {
 	StartDaemon(StartDaemonConfig),
-	Demo(DemoConfig),
-	// TODO:
-	//
-	// * SetServerName: `cargo run set-server-name Alice`
-	//
-	// * Greet: `cargo run greet Bob` -> send string "Bob" to server. Server
-	//   responds with string "Hello Bob, I am Alice". Client prints that
-	//   string.
+	SetServerName(SetServerNameConfig),
+	Greet(GreetConfig),
 }
 
 impl SubcommandCLI {
 	pub fn main(self) -> ! {
 		match self {
 			SubcommandCLI::StartDaemon(conf) => conf.main(),
-			SubcommandCLI::Demo(conf) => conf.main(),
+			SubcommandCLI::Greet(conf) => conf.main(),
+			SubcommandCLI::SetServerName(conf) => conf.main(),
 		}
 	}
 }
 
 /// TODO document this
 #[derive(FromArgs)]
-#[argh(subcommand, name = "demo")]
-struct DemoConfig {
+#[argh(subcommand, name = "greet")]
+struct GreetConfig {
 	/// TODO document this
 	#[argh(option, default = "DEFAULT_PORT")]
 	port: TcpPort,
 	/// TODO document this
-	#[argh(positional, default = "DemoMsg::Hello")]
-	msg: DemoMsg,
+	#[argh(positional, default = "\"Bob\".to_string()")]
+	name: String,
 }
 
-// TODO argh v0.1.14 will support this?
-// https://github.com/google/argh/commit/79d3022364d7df5f43c4b7e8e1826d50dd04e669
-// #[derive(FromArgValue)]
-enum DemoMsg {
-	// #[argh(name = "hello")]
-	Hello,
-	_Goodbye,
-}
-
-impl DemoMsg {
-	pub fn convert(&self) -> AutolockMsg {
-		match self {
-			DemoMsg::Hello => AutolockMsg::HelloWorld,
-			DemoMsg::_Goodbye => AutolockMsg::GoodbyeWorld,
-		}
-	}
-}
-
-impl FromArgValue for DemoMsg {
-	fn from_arg_value(arg: &str) -> Result<Self, String> {
-		match arg {
-			"hello" => Ok(DemoMsg::Hello),
-			"goodbye" => Ok(DemoMsg::_Goodbye),
-			&_ => Err(format!("\"{arg}\" could not be parsed as a message")),
-		}
-	}
-}
-
-impl DemoConfig {
+impl GreetConfig {
 	pub fn main(self) -> ! {
+		let msg = AutolockMsg::Greet(self.name);
+
 		let mut client = Client::<AutolockMsg, AutolockDPK>::new(self.port);
-		client.send_message(&self.msg.convert());
+		client.send_message(&msg);
+		std::process::exit(0)
+	}
+}
+
+/// TODO document this
+#[derive(FromArgs)]
+#[argh(subcommand, name = "set-server-name")]
+struct SetServerNameConfig {
+	/// TODO document this
+	#[argh(option, default = "DEFAULT_PORT")]
+	port: TcpPort,
+	/// TODO document this
+	#[argh(positional, default = "\"Alice\".to_string()")]
+	new_name: String,
+}
+
+impl SetServerNameConfig {
+	pub fn main(self) -> ! {
+		let msg = AutolockMsg::SetServerName(self.new_name);
+
+		let mut client = Client::<AutolockMsg, AutolockDPK>::new(self.port);
+		client.send_message(&msg);
 		std::process::exit(0)
 	}
 }
