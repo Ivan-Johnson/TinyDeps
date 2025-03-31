@@ -57,7 +57,7 @@ while read local_ref local_oid remote_ref remote_oid; do
 			exit "$status"
 		fi
 
-		logs="$(RUSTFLAGS="-D warnings" cargo test --profile=release 2>&1)" || status="$?"
+		logs="$(RUSTFLAGS="-D warnings" cargo test --all-features --profile=release 2>&1)" || status="$?"
 		if [ "${status:-0}" -ne 0 ]; then
 			echo "$logs"
 			echo
