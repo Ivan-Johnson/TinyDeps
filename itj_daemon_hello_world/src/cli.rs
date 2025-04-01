@@ -56,7 +56,8 @@ impl GreetConfig {
 		let msg = AutolockMsg::Greet(self.name);
 
 		let mut client = Client::<AutolockMsg, AutolockMsg>::new(self.port);
-		client.send_message(&msg);
+		let response = client.send_message(&msg);
+		println!("Got this response: {response:?}");
 		std::process::exit(0)
 	}
 }
@@ -78,7 +79,8 @@ impl SetServerNameConfig {
 		let msg = AutolockMsg::SetServerName(self.new_name);
 
 		let mut client = Client::<AutolockMsg, AutolockMsg>::new(self.port);
-		client.send_message(&msg);
+		let response = client.send_message(&msg);
+		println!("Got this response: {response:?}");
 		std::process::exit(0)
 	}
 }

@@ -32,15 +32,10 @@ impl<TMsg: Debug, TSerializer: MessageSerializer<TMsg>, TProcessor: MessageProce
 				break;
 			}
 			let msg: TMsg = TSerializer::deserialize(&bytes);
-			let result = self
-				.processor
-				.process(&msg)
-				// Do we ever want to support error handling?
-				.expect("TODO: Error handling is not supported yet");
-			assert!(
-				matches!(result, None),
-				"TODO: Add support for sending responses"
-			);
+			let response = self.processor.process(&msg);
+			let response_bytes = TSerializer::serialize(&response);
+			self.ipc.send(&response_bytes);
+
 			self.ipc.restart();
 		}
 	}

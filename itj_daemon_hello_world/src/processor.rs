@@ -6,19 +6,22 @@ pub struct Processor {
 }
 
 impl MessageProcessor<AutolockMsg> for Processor {
-	fn process(&mut self, msg: &AutolockMsg) -> Result<Option<AutolockMsg>, ()> {
+	fn process(&mut self, msg: &AutolockMsg) -> AutolockMsg {
 		match msg {
 			AutolockMsg::Greet(name) => {
-				println!("Hello {name}, I am {}!", self.server_name);
-				// TODO send a response
+				let response = format!("Hello {name}, I am {}!", self.server_name);
+				println!("{}", response);
+				AutolockMsg::GreetingResponse(response)
 			}
 			AutolockMsg::SetServerName(name) => {
 				println!("Changing server name from {} to {}", self.server_name, name);
 				self.server_name = name.to_string();
-				// TODO send a response
+				AutolockMsg::Ack
 			}
-		};
-		Ok(None)
+			&AutolockMsg::GreetingResponse(_) | &AutolockMsg::Ack => {
+				panic!("A response was sent as a request??")
+			}
+		}
 	}
 }
 

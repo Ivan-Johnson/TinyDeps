@@ -11,9 +11,11 @@ pub struct Client<TMsg, TSerializer: MessageSerializer<TMsg>> {
 }
 
 impl<TMsg, TSerializer: MessageSerializer<TMsg>> Client<TMsg, TSerializer> {
-	pub fn send_message(&mut self, message: &TMsg) {
+	pub fn send_message(&mut self, message: &TMsg) -> TMsg {
 		let bytes = TSerializer::serialize(message);
 		self.ipc.send(&bytes);
+		let response_bytes = self.ipc.read();
+		TSerializer::deserialize(&response_bytes)
 	}
 
 	pub fn new(server_port: TcpPort) -> Self {
