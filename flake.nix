@@ -6,8 +6,8 @@
 	outputs = { self, nixpkgs }: let
 		pkgs = import nixpkgs { system = "x86_64-linux"; };
 		rustPlatform = pkgs.rustPlatform;
-		autolock = rustPlatform.buildRustPackage {
-			pname = "autolock";
+		itj_tiny_deps = rustPlatform.buildRustPackage {
+			pname = "itj_tiny_deps";
 
 			version = "0.1.0";
 
@@ -34,17 +34,17 @@
 			];
 		};
 
-		packages.${pkgs.system}.default = autolock;
+		packages.${pkgs.system}.default = itj_tiny_deps;
 
 		nixos_options =
 			{ config, lib, pkgs, ... }:
 
 			let
-				cfg = config.programs.autolock;
+				cfg = config.programs.itj_tiny_deps;
 			in
 			{
 				options = {
-					programs.autolock = {
+					programs.itj_tiny_deps = {
 						enable = lib.mkEnableOption "TODO document this";
 
 						user_agent = lib.mkOption {
@@ -56,7 +56,7 @@
 
 				config = lib.mkMerge [
 					(lib.mkIf cfg.enable {
-						environment.systemPackages = [ autolock ];
+						environment.systemPackages = [ itj_tiny_deps ];
 					})
 				];
 			};
