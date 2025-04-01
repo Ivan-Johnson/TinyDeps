@@ -1,21 +1,26 @@
-use crate::daemon::message::DaemonDPK;
+use crate::daemon::MessageProcessor;
+use crate::daemon::MessageSerializer;
 use crate::ipc::TcpPort;
 use crate::ipc::IPC;
 use crate::ipc::IPCNC;
 use std::marker::PhantomData;
 
-pub struct Server<TMsg, TDPK: DaemonDPK<TMsg>> {
+pub struct Server<TMsg, TSerializer: MessageSerializer<TMsg>, TProcessor: MessageProcessor<TMsg>> {
 	ipc: Box<dyn IPC>,
-	_phantom_tdpk: PhantomData<TDPK>,
+	processor: TProcessor,
 	_phantom_tmsg: PhantomData<TMsg>,
+	_phantom_serializer: PhantomData<TSerializer>,
 }
 
-impl<TMsg, TDPK: DaemonDPK<TMsg>> Server<TMsg, TDPK> {
-	pub fn new(port: TcpPort) -> Self {
+impl<TMsg, TSerializer: MessageSerializer<TMsg>, TProcessor: MessageProcessor<TMsg>>
+	Server<TMsg, TSerializer, TProcessor>
+{
+	pub fn new(port: TcpPort, processor: TProcessor) -> Self {
 		Self {
 			ipc: Box::new(IPCNC::open_server(port)),
-			_phantom_tdpk: PhantomData {},
+			processor,
 			_phantom_tmsg: PhantomData {},
+			_phantom_serializer: PhantomData {},
 		}
 	}
 
@@ -25,8 +30,8 @@ impl<TMsg, TDPK: DaemonDPK<TMsg>> Server<TMsg, TDPK> {
 			if bytes.len() == 0 {
 				break;
 			}
-			let msg: TMsg = TDPK::deserialize(&bytes);
-			TDPK::process(&msg);
+			let msg: TMsg = TSerializer::deserialize(&bytes);
+			self.processor.process(&msg);
 			self.ipc.restart();
 		}
 	}

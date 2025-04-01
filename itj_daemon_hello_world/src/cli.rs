@@ -1,5 +1,5 @@
-use crate::message::AutolockDPK;
 use crate::message::AutolockMsg;
+use crate::processor::Processor;
 use argh::FromArgs;
 use itj_tiny_deps::daemon::Client;
 use itj_tiny_deps::daemon::Server;
@@ -55,7 +55,7 @@ impl GreetConfig {
 	pub fn main(self) -> ! {
 		let msg = AutolockMsg::Greet(self.name);
 
-		let mut client = Client::<AutolockMsg, AutolockDPK>::new(self.port);
+		let mut client = Client::<AutolockMsg, AutolockMsg>::new(self.port);
 		client.send_message(&msg);
 		std::process::exit(0)
 	}
@@ -77,7 +77,7 @@ impl SetServerNameConfig {
 	pub fn main(self) -> ! {
 		let msg = AutolockMsg::SetServerName(self.new_name);
 
-		let mut client = Client::<AutolockMsg, AutolockDPK>::new(self.port);
+		let mut client = Client::<AutolockMsg, AutolockMsg>::new(self.port);
 		client.send_message(&msg);
 		std::process::exit(0)
 	}
@@ -94,7 +94,7 @@ struct StartDaemonConfig {
 
 impl StartDaemonConfig {
 	pub fn main(self) -> ! {
-		let mut server = Server::<AutolockMsg, AutolockDPK>::new(self.port);
+		let mut server = Server::<AutolockMsg, AutolockMsg, Processor>::new(self.port, Processor::default());
 
 		let mut count = 0;
 		loop {

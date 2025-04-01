@@ -1,24 +1,24 @@
-use crate::daemon::message::DaemonDPK;
+use crate::daemon::MessageSerializer;
 use crate::ipc::TcpPort;
 use crate::ipc::IPC;
 use crate::ipc::IPCNC;
 use std::marker::PhantomData;
 
-pub struct Client<TMsg, TDPK: DaemonDPK<TMsg>> {
+pub struct Client<TMsg, TSerializer: MessageSerializer<TMsg>> {
 	ipc: Box<dyn IPC>,
-	_phantom_tdpk: PhantomData<TDPK>,
+	_phantom_tdpk: PhantomData<TSerializer>,
 	_phantom_tmsg: PhantomData<TMsg>,
 }
 
-impl<TMsg, TDPK: DaemonDPK<TMsg>> Client<TMsg, TDPK> {
+impl<TMsg, TSerializer: MessageSerializer<TMsg>> Client<TMsg, TSerializer> {
 	pub fn send_message(&mut self, message: &TMsg) {
-		let bytes = TDPK::serialize(message);
+		let bytes = TSerializer::serialize(message);
 		self.ipc.send(&bytes);
 	}
 
-	pub fn new(port: TcpPort) -> Self {
+	pub fn new(server_port: TcpPort) -> Self {
 		Self {
-			ipc: Box::new(IPCNC::open_client(port)),
+			ipc: Box::new(IPCNC::open_client(server_port)),
 			_phantom_tdpk: PhantomData {},
 			_phantom_tmsg: PhantomData {},
 		}

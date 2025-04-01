@@ -1,17 +1,13 @@
-use itj_tiny_deps::daemon::DaemonDPK;
+use itj_tiny_deps::daemon::MessageSerializer;
 
+// TODO rename this struct
 #[derive(Debug)]
 pub enum AutolockMsg {
 	Greet(String),
 	SetServerName(String),
 }
 
-#[derive(Default)]
-pub struct AutolockDPK {
-	_server_name: Option<String>,
-}
-
-impl DaemonDPK<AutolockMsg> for AutolockDPK {
+impl MessageSerializer<AutolockMsg> for AutolockMsg {
 	fn serialize(msg: &AutolockMsg) -> Vec<u8> {
 		let (msg_type, str_val): (u8, &String) = match msg {
 			AutolockMsg::Greet(str_val) => (0, str_val),
@@ -33,16 +29,6 @@ impl DaemonDPK<AutolockMsg> for AutolockDPK {
 			0 => AutolockMsg::Greet(msg_str),
 			1 => AutolockMsg::SetServerName(msg_str),
 			2_u8..=u8::MAX => panic!(),
-		}
-	}
-
-	fn process(msg: &AutolockMsg) {
-		println!("Processing {msg:?}");
-		match msg {
-			AutolockMsg::Greet(name) => println!("Hello {name}, I am {}!", "TODO"),
-			AutolockMsg::SetServerName(name) => {
-				println!("TODO: Update server name to {name}");
-			}
 		}
 	}
 }
