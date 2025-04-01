@@ -1,20 +1,31 @@
 use crate::message::AutolockMsg;
 use itj_tiny_deps::daemon::MessageProcessor;
 
-#[derive(Default)]
 pub struct Processor {
-	_server_name: Option<String>,
+	server_name: String,
 }
 
 impl MessageProcessor<AutolockMsg> for Processor {
-	fn process(&mut self, msg: &AutolockMsg) -> std::option::Option<AutolockMsg> {
-		println!("Processing {msg:?}");
+	fn process(&mut self, msg: &AutolockMsg) -> Result<Option<AutolockMsg>, ()> {
 		match msg {
-			AutolockMsg::Greet(name) => println!("Hello {name}, I am {}!", "TODO"),
+			AutolockMsg::Greet(name) => {
+				println!("Hello {name}, I am {}!", self.server_name);
+				// TODO send a response
+			}
 			AutolockMsg::SetServerName(name) => {
-				println!("TODO: Update server name to {name}");
+				println!("Changing server name from {} to {}", self.server_name, name);
+				self.server_name = name.to_string();
+				// TODO send a response
 			}
 		};
-		None
+		Ok(None)
+	}
+}
+
+impl Default for Processor {
+	fn default() -> Self {
+		Self {
+			server_name: "Alice".to_string(),
+		}
 	}
 }

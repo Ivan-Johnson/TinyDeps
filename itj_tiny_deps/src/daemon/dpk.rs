@@ -4,5 +4,5 @@ pub trait MessageSerializer<TMsg> {
 }
 
 pub trait MessageProcessor<TMsg> {
-	fn process(&mut self, msg: &TMsg) -> Option<TMsg>;
+	fn process(&mut self, msg: &TMsg) -> Result<Option<TMsg>, ()>;
 }

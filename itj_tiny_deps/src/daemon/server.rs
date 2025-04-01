@@ -3,16 +3,17 @@ use crate::daemon::MessageSerializer;
 use crate::ipc::TcpPort;
 use crate::ipc::IPC;
 use crate::ipc::IPCNC;
+use std::fmt::Debug;
 use std::marker::PhantomData;
 
-pub struct Server<TMsg, TSerializer: MessageSerializer<TMsg>, TProcessor: MessageProcessor<TMsg>> {
+pub struct Server<TMsg: Debug, TSerializer: MessageSerializer<TMsg>, TProcessor: MessageProcessor<TMsg>> {
 	ipc: Box<dyn IPC>,
 	processor: TProcessor,
 	_phantom_tmsg: PhantomData<TMsg>,
 	_phantom_serializer: PhantomData<TSerializer>,
 }
 
-impl<TMsg, TSerializer: MessageSerializer<TMsg>, TProcessor: MessageProcessor<TMsg>>
+impl<TMsg: Debug, TSerializer: MessageSerializer<TMsg>, TProcessor: MessageProcessor<TMsg>>
 	Server<TMsg, TSerializer, TProcessor>
 {
 	pub fn new(port: TcpPort, processor: TProcessor) -> Self {
@@ -31,7 +32,15 @@ impl<TMsg, TSerializer: MessageSerializer<TMsg>, TProcessor: MessageProcessor<TM
 				break;
 			}
 			let msg: TMsg = TSerializer::deserialize(&bytes);
-			self.processor.process(&msg);
+			let result = self
+				.processor
+				.process(&msg)
+				// Do we ever want to support error handling?
+				.expect("TODO: Error handling is not supported yet");
+			assert!(
+				matches!(result, None),
+				"TODO: Add support for sending responses"
+			);
 			self.ipc.restart();
 		}
 	}
