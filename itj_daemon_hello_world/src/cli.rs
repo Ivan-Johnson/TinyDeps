@@ -1,4 +1,4 @@
-use crate::message::AutolockMsg;
+use crate::message::DaemonDemoMsg;
 use crate::processor::Processor;
 use argh::FromArgs;
 use itj_tiny_deps::daemon::Client;
@@ -53,9 +53,9 @@ struct GreetConfig {
 
 impl GreetConfig {
 	pub fn main(self) -> ! {
-		let msg = AutolockMsg::Greet(self.name);
+		let msg = DaemonDemoMsg::Greet(self.name);
 
-		let mut client = Client::<AutolockMsg, AutolockMsg>::new(self.port);
+		let mut client = Client::<DaemonDemoMsg, DaemonDemoMsg>::new(self.port);
 		let response = client.send_message(&msg);
 		println!("Got this response: {response:?}");
 		std::process::exit(0)
@@ -76,11 +76,11 @@ struct SetServerNameConfig {
 
 impl SetServerNameConfig {
 	pub fn main(self) -> ! {
-		let msg = AutolockMsg::SetServerName(self.new_name);
+		let msg = DaemonDemoMsg::SetServerName(self.new_name);
 
-		let mut client = Client::<AutolockMsg, AutolockMsg>::new(self.port);
+		let mut client = Client::<DaemonDemoMsg, DaemonDemoMsg>::new(self.port);
 		let response = client.send_message(&msg);
-		assert_eq!(response, AutolockMsg::Ack);
+		assert_eq!(response, DaemonDemoMsg::Ack);
 		std::process::exit(0)
 	}
 }
@@ -96,7 +96,8 @@ struct StartDaemonConfig {
 
 impl StartDaemonConfig {
 	pub fn main(self) -> ! {
-		let mut server = Server::<AutolockMsg, AutolockMsg, Processor>::new(self.port, Processor::default());
+		let mut server =
+			Server::<DaemonDemoMsg, DaemonDemoMsg, Processor>::new(self.port, Processor::default());
 
 		let mut count = 0;
 		loop {

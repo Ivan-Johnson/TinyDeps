@@ -1,24 +1,24 @@
-use crate::message::AutolockMsg;
+use crate::message::DaemonDemoMsg;
 use itj_tiny_deps::daemon::MessageProcessor;
 
 pub struct Processor {
 	server_name: String,
 }
 
-impl MessageProcessor<AutolockMsg> for Processor {
-	fn process(&mut self, msg: &AutolockMsg) -> AutolockMsg {
+impl MessageProcessor<DaemonDemoMsg> for Processor {
+	fn process(&mut self, msg: &DaemonDemoMsg) -> DaemonDemoMsg {
 		match msg {
-			AutolockMsg::Greet(name) => {
+			DaemonDemoMsg::Greet(name) => {
 				let response = format!("Hello {name}, I am {}!", self.server_name);
 				println!("{}", response);
-				AutolockMsg::GreetingResponse(response)
+				DaemonDemoMsg::GreetingResponse(response)
 			}
-			AutolockMsg::SetServerName(name) => {
+			DaemonDemoMsg::SetServerName(name) => {
 				println!("Changing server name from {} to {}", self.server_name, name);
 				self.server_name = name.to_string();
-				AutolockMsg::Ack
+				DaemonDemoMsg::Ack
 			}
-			&AutolockMsg::GreetingResponse(_) | &AutolockMsg::Ack => {
+			&DaemonDemoMsg::GreetingResponse(_) | &DaemonDemoMsg::Ack => {
 				panic!("A response was sent as a request??")
 			}
 		}
