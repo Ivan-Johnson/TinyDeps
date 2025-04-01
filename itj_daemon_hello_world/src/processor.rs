@@ -28,7 +28,7 @@ impl MessageProcessor<AutolockMsg> for Processor {
 impl Default for Processor {
 	fn default() -> Self {
 		Self {
-			server_name: "Alice".to_string(),
+			server_name: "Server".to_string(),
 		}
 	}
 }

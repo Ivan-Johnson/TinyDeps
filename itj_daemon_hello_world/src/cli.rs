@@ -47,7 +47,7 @@ struct GreetConfig {
 	#[argh(option, default = "DEFAULT_PORT")]
 	port: TcpPort,
 	/// TODO document this
-	#[argh(positional, default = "\"Bob\".to_string()")]
+	#[argh(positional, default = "\"Client\".to_string()")]
 	name: String,
 }
 
@@ -80,7 +80,7 @@ impl SetServerNameConfig {
 
 		let mut client = Client::<AutolockMsg, AutolockMsg>::new(self.port);
 		let response = client.send_message(&msg);
-		println!("Got this response: {response:?}");
+		assert_eq!(response, AutolockMsg::Ack);
 		std::process::exit(0)
 	}
 }

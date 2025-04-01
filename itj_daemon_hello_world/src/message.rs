@@ -1,7 +1,7 @@
 use itj_tiny_deps::daemon::MessageSerializer;
 
 // TODO rename this struct
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum AutolockMsg {
 	Greet(String),
 	SetServerName(String),
