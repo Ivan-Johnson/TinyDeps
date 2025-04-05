@@ -1,5 +1,6 @@
 use crate::message::DaemonDemoMsg;
 use itj_tiny_deps::daemon::MessageProcessor;
+use std::env;
 
 pub struct Processor {
 	server_name: String,
@@ -27,8 +28,9 @@ impl MessageProcessor<DaemonDemoMsg> for Processor {
 
 impl Default for Processor {
 	fn default() -> Self {
-		Self {
-			server_name: "Server".to_string(),
-		}
+		let server_name = env::var("ITJ_DAEMON_HELLO_WORLD_DEFAULT_SERVER_NAME")
+			.unwrap()
+			.to_string();
+		Self { server_name }
 	}
 }
