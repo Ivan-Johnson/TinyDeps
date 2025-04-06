@@ -1,4 +1,4 @@
-use crate::message::DaemonDemoMsg;
+use crate::message::HelloWorldMessage;
 use crate::server::Server;
 use argh::FromArgs;
 use itj_tiny_deps::daemon::Client;
@@ -51,9 +51,9 @@ struct GreetConfig {
 
 impl GreetConfig {
 	pub fn main(self) -> ! {
-		let msg = DaemonDemoMsg::Greet(self.name);
+		let msg = HelloWorldMessage::Greet(self.name);
 
-		let mut client = Client::<DaemonDemoMsg, DaemonDemoMsg>::new(self.port);
+		let mut client = Client::<HelloWorldMessage, HelloWorldMessage>::new(self.port);
 		let response = client.send_message(&msg);
 		println!("Got this response: {response:?}");
 		std::process::exit(0)
@@ -74,11 +74,11 @@ struct SetServerNameConfig {
 
 impl SetServerNameConfig {
 	pub fn main(self) -> ! {
-		let msg = DaemonDemoMsg::SetServerName(self.new_name);
+		let msg = HelloWorldMessage::SetServerName(self.new_name);
 
-		let mut client = Client::<DaemonDemoMsg, DaemonDemoMsg>::new(self.port);
+		let mut client = Client::<HelloWorldMessage, HelloWorldMessage>::new(self.port);
 		let response = client.send_message(&msg);
-		assert_eq!(response, DaemonDemoMsg::Ack);
+		assert_eq!(response, HelloWorldMessage::Ack);
 		std::process::exit(0)
 	}
 }

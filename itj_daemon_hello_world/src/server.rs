@@ -1,4 +1,4 @@
-use crate::message::DaemonDemoMsg;
+use crate::message::HelloWorldMessage;
 use itj_tiny_deps::daemon::spawn_server_thread;
 use itj_tiny_deps::ipc::TcpPort;
 use std::env;
@@ -10,7 +10,7 @@ use std::time::Duration;
 
 pub struct Server {
 	server_name: String,
-	receiver: Receiver<(DaemonDemoMsg, Sender<DaemonDemoMsg>)>,
+	receiver: Receiver<(HelloWorldMessage, Sender<HelloWorldMessage>)>,
 	tiny_server_handle: thread::JoinHandle<()>,
 	count: u32,
 }
@@ -20,7 +20,7 @@ impl Server {
 		let server_name = env::var("ITJ_DAEMON_HELLO_WORLD_DEFAULT_SERVER_NAME")
 			.unwrap()
 			.to_string();
-		let (tiny_server_handle, receiver) = spawn_server_thread::<DaemonDemoMsg, DaemonDemoMsg>(port);
+		let (tiny_server_handle, receiver) = spawn_server_thread::<HelloWorldMessage, HelloWorldMessage>(port);
 		let count = 0;
 		Self {
 			tiny_server_handle,
@@ -30,19 +30,19 @@ impl Server {
 		}
 	}
 
-	fn process(&mut self, msg: &DaemonDemoMsg) -> DaemonDemoMsg {
+	fn process(&mut self, msg: &HelloWorldMessage) -> HelloWorldMessage {
 		match msg {
-			DaemonDemoMsg::Greet(name) => {
+			HelloWorldMessage::Greet(name) => {
 				let response = format!("Hello {name}, I am {}!", self.server_name);
 				println!("{}", response);
-				DaemonDemoMsg::GreetingResponse(response)
+				HelloWorldMessage::GreetingResponse(response)
 			}
-			DaemonDemoMsg::SetServerName(name) => {
+			HelloWorldMessage::SetServerName(name) => {
 				println!("Changing server name from {} to {}", self.server_name, name);
 				self.server_name = name.to_string();
-				DaemonDemoMsg::Ack
+				HelloWorldMessage::Ack
 			}
-			&DaemonDemoMsg::GreetingResponse(_) | &DaemonDemoMsg::Ack => {
+			&HelloWorldMessage::GreetingResponse(_) | &HelloWorldMessage::Ack => {
 				panic!("A response was sent as a request??")
 			}
 		}
