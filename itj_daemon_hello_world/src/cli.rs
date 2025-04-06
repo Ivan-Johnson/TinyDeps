@@ -1,10 +1,8 @@
 use crate::message::DaemonDemoMsg;
-use crate::processor::Processor;
+use crate::server::Server;
 use argh::FromArgs;
 use itj_tiny_deps::daemon::Client;
-use itj_tiny_deps::daemon::Server;
 use itj_tiny_deps::ipc::TcpPort;
-use std::time::Duration;
 
 const DEFAULT_PORT: TcpPort = 15829;
 
@@ -96,16 +94,8 @@ struct StartDaemonConfig {
 
 impl StartDaemonConfig {
 	pub fn main(self) -> ! {
-		let mut server =
-			Server::<DaemonDemoMsg, DaemonDemoMsg, Processor>::new(self.port, Processor::default());
-
-		let mut count = 0;
-		loop {
-			println!("Poll #{count}");
-			server.poll();
-			std::thread::sleep(Duration::from_secs(1));
-			count += 1;
-		}
+		let server = Server::new(self.port);
+		server.main()
 	}
 }
 

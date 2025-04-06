@@ -1,42 +1,52 @@
-use crate::daemon::MessageProcessor;
 use crate::daemon::MessageSerializer;
 use crate::ipc::TcpPort;
 use crate::ipc::IPC;
 use crate::ipc::IPCNC;
 use std::fmt::Debug;
-use std::marker::PhantomData;
+use std::marker::Send;
+use std::sync::mpsc;
+use std::sync::mpsc::Receiver;
+use std::sync::mpsc::Sender;
+use std::thread;
+use std::time::Duration;
 
-pub struct Server<TMsg: Debug, TSerializer: MessageSerializer<TMsg>, TProcessor: MessageProcessor<TMsg>> {
-	ipc: Box<dyn IPC>,
-	processor: TProcessor,
-	_phantom_tmsg: PhantomData<TMsg>,
-	_phantom_serializer: PhantomData<TSerializer>,
+fn server_thread_main<TMsg: Debug + Send + 'static, TSerializer: MessageSerializer<TMsg>>(
+	port: TcpPort,
+	tx: Sender<(TMsg, Sender<TMsg>)>,
+) -> ! {
+	let mut ipc = IPCNC::open_server(port);
+	loop {
+		// 1. Read message from Client
+		let bytes = ipc.read();
+		if bytes.len() == 0 {
+			std::thread::sleep(Duration::from_secs(1));
+			continue;
+		}
+		let msg: TMsg = TSerializer::deserialize(&bytes);
+
+		// 2. Send message to main server thread
+		let (tx_resp, rx_resp) = mpsc::channel::<TMsg>();
+		tx.send((msg, tx_resp)).unwrap();
+
+		// 3. Read response from main server thread
+		let response = rx_resp.recv().unwrap();
+
+		// 4. Send response to client
+		let response_bytes = TSerializer::serialize(&response);
+		ipc.send(&response_bytes);
+
+		ipc.restart();
+	}
 }
 
-impl<TMsg: Debug, TSerializer: MessageSerializer<TMsg>, TProcessor: MessageProcessor<TMsg>>
-	Server<TMsg, TSerializer, TProcessor>
-{
-	pub fn new(port: TcpPort, processor: TProcessor) -> Self {
-		Self {
-			ipc: Box::new(IPCNC::open_server(port)),
-			processor,
-			_phantom_tmsg: PhantomData {},
-			_phantom_serializer: PhantomData {},
-		}
-	}
+pub fn spawn_server_thread<TMsg: Debug + Send + 'static, TSerializer: MessageSerializer<TMsg>>(
+	port: TcpPort,
+) -> (thread::JoinHandle<()>, Receiver<(TMsg, Sender<TMsg>)>) {
+	let (tx, rx) = mpsc::channel();
 
-	pub fn poll(&mut self) {
-		loop {
-			let bytes = self.ipc.read();
-			if bytes.len() == 0 {
-				break;
-			}
-			let msg: TMsg = TSerializer::deserialize(&bytes);
-			let response = self.processor.process(&msg);
-			let response_bytes = TSerializer::serialize(&response);
-			self.ipc.send(&response_bytes);
+	let handle = thread::spawn(move || {
+		server_thread_main::<TMsg, TSerializer>(port, tx);
+	});
 
-			self.ipc.restart();
-		}
-	}
+	(handle, rx)
 }

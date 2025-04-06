@@ -1,5 +1,5 @@
 #![forbid(unsafe_code)]
-#![cfg_attr(debug_assertions, allow(dead_code, unused_imports))]
+#![cfg_attr(debug_assertions, allow(dead_code, unused_imports, unreachable_code))]
 
 #[cfg(feature = "daemon")]
 pub mod daemon;
