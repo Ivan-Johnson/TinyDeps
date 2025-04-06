@@ -59,7 +59,10 @@ impl IPCNC {
 			.child
 			.try_wait()
 			.expect("Unable to determine if nc has exited or not??");
-		assert_eq!(None, status, "ERROR: nc has exited");
+		if status != None {
+			self.print_child_logs();
+			panic!("ERROR: nc has exited: {status:?}");
+		}
 	}
 
 	fn wait_for_finish(&mut self, timeout: Duration) {
