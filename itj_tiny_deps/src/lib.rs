@@ -11,3 +11,5 @@ pub mod errors;
 pub mod ipc;
 #[cfg(feature = "random")]
 pub mod random;
+#[cfg(feature = "time")]
+pub mod time;
