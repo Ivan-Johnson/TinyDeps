@@ -4,7 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-ipc = []
+command = []
 daemon = ["ipc"]
-random = []
 error_handling = []
+ipc = []
+random = []
