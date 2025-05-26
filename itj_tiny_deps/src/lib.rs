@@ -7,6 +7,8 @@ pub mod command;
 pub mod daemon;
 #[cfg(feature = "error_handling")]
 pub mod errors;
+#[cfg(feature = "http")]
+pub mod http;
 #[cfg(feature = "ipc")]
 pub mod ipc;
 #[cfg(feature = "random")]
