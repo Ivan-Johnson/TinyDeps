@@ -11,4 +11,5 @@ pub use http_core::Http;
 pub use http_core::HttpGetResponse;
 #[allow(unused)] // TODO
 pub use http_core::HttpHeader;
+pub use mock_http::MockHttp;
 pub use mock_http::MockHttpController;
