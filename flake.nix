@@ -42,6 +42,7 @@
 			buildInputs = [
 				pkgs.cargo
 				pkgs.cargo-flamegraph
+				pkgs.clippy
 				pkgs.lldb
 				pkgs.rustc
 				pkgs.rustfmt
