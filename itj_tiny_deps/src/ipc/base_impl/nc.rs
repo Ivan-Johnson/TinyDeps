@@ -1,3 +1,4 @@
+use crate::time::RealTime;
 use std::io::Read;
 use std::io::Write;
 use std::process::Child;
@@ -10,6 +11,7 @@ use std::time::Duration;
 
 use crate::ipc::TcpPort;
 use crate::ipc::IPC;
+use crate::time::Time;
 
 /// IIRC Linux guarantees that writes smaler than 4k are atomic; this size was
 /// choosen accordingly.
@@ -21,6 +23,7 @@ pub struct IPCNC {
 	stdin: ChildStdin,
 	stdout: ChildStdout,
 	stderr: ChildStderr,
+	time: Box<dyn Time>,
 }
 
 impl IPC for IPCNC {
@@ -68,7 +71,7 @@ impl IPCNC {
 
 	fn wait_for_finish(&mut self, timeout: Duration) {
 		let max_time = timeout;
-		let cur_time = Duration::from_secs(0);
+		let mut cur_time = Duration::from_secs(0);
 		while cur_time < max_time {
 			let status = self
 				.child
@@ -80,6 +83,7 @@ impl IPCNC {
 			}
 
 			std::thread::sleep(Duration::from_millis(10));
+			cur_time = self.time.now_duration();
 		}
 		panic!("Timed out waiting for nc to finish")
 	}
@@ -136,21 +140,23 @@ impl IPCNC {
 	}
 
 	pub fn open_server(port: TcpPort) -> Self {
+		let time: Box<dyn Time> = Box::new(RealTime::default()); // TODO
 		let mut builder = Command::new("nc");
 		builder.arg("-l").arg(format!("{port}"));
-		Self::open_shared(builder)
+		Self::open_shared(builder, time)
 	}
 
 	pub fn open_client(port: TcpPort) -> Self {
+		let time: Box<dyn Time> = Box::new(RealTime::default()); // TODO
 		let mut builder = Command::new("nc");
 		builder.arg("-N").arg("127.0.0.1").arg(format!("{port}"));
-		Self::open_shared(builder)
+		Self::open_shared(builder, time)
 	}
 
 	/// The first few lines of `open_client` and `open_server` are different
 	/// from each other. Everything after that is shared and done in this
 	/// common function.
-	fn open_shared(mut builder: Command) -> Self {
+	fn open_shared(mut builder: Command, time: Box<dyn Time>) -> Self {
 		builder.stdin(Stdio::piped())
 			.stdout(Stdio::piped())
 			.stderr(Stdio::piped());
@@ -159,6 +165,7 @@ impl IPCNC {
 		let (stdin, stdout, stderr) = Self::take_io(&mut child);
 
 		let mut obj = Self {
+			time,
 			builder,
 			child,
 			stdin,
@@ -210,12 +217,11 @@ mod tests {
 		assert_eq!(data, response);
 	}
 
-	// This test hangs
-	// #[test]
-	// // #[should_fail]
-	// fn test_early_server_restart() {
-	// 	let port = get_new_port();
-	// 	let mut server = IPCNC::open_server(port);
-	// 	server.restart();
-	// }
+	#[test]
+	#[should_panic]
+	fn test_early_server_restart() {
+		let port = get_new_port();
+		let mut server = IPCNC::open_server(port);
+		server.restart();
+	}
 }
