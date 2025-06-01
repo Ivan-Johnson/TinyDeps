@@ -1,7 +1,6 @@
 use crate::errors::ErrorSmart;
 use std::fmt::Debug;
 
-///
 #[derive(Debug, Clone, PartialEq)]
 pub struct HttpHeader {
 	pub name: String,

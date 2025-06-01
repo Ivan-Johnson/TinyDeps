@@ -43,9 +43,7 @@ impl IPC for IPCNC {
 	fn read(&mut self) -> Vec<u8> {
 		self.assert_is_running();
 		let mut buffer: Box<[u8; MAX_WRITE_SIZE]> = Box::new([0; MAX_WRITE_SIZE]);
-		let Ok(read_size) = self.stdout.read(buffer.as_mut()) else {
-			return vec![];
-		};
+		let read_size = self.stdout.read(buffer.as_mut()).unwrap();
 		buffer[0..read_size].to_vec()
 	}
 
