@@ -46,7 +46,6 @@ impl Http for Curl {
 
 		let headers: Vec<HttpHeader> = headers
 			.lines()
-			.into_iter()
 			.skip(1) // First line isn't a header (e.g. `HTTP/2 200`)
 			.map(|header| {
 				let index = header.find(":").unwrap();

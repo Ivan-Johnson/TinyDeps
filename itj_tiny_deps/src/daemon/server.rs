@@ -18,7 +18,7 @@ fn server_thread_main<TMsg: Debug + Send + 'static, TSerializer: MessageSerializ
 	loop {
 		// 1. Read message from Client
 		let bytes = ipc.read();
-		if bytes.len() == 0 {
+		if bytes.is_empty() {
 			std::thread::sleep(Duration::from_secs(1));
 			continue;
 		}

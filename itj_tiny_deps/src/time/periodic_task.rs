@@ -9,7 +9,7 @@ use std::time::Instant;
 /// periodically call the run function, which will then invoke the callback if
 /// sufficient time has passed.
 pub struct PeriodicTask<'a, T> {
-	callback: &'a dyn Fn(T) -> (),
+	callback: &'a dyn Fn(T),
 	t_next: Instant,
 	period: Duration,
 }
@@ -26,11 +26,11 @@ impl<'a, T> Debug for PeriodicTask<'a, T> {
 
 impl<'a, T> PeriodicTask<'a, T> {
 	// TODO: add a `Time` argument here?
-	pub fn new(callback: &'a dyn Fn(T) -> (), period: Duration) -> Self {
+	pub fn new(callback: &'a dyn Fn(T), period: Duration) -> Self {
 		PeriodicTask {
-			callback: callback,
+			callback,
 			t_next: Instant::now(),
-			period: period,
+			period,
 		}
 	}
 

@@ -99,7 +99,7 @@ impl Http for MockHttp {
 				next.url, url
 			));
 		}
-		if errors.len() > 0 {
+		if !errors.is_empty() {
 			drop(next);
 			// Even if the test is marked as `should_panic`, the
 			// Rust test framework doesn't like it if we panic

@@ -3,7 +3,7 @@ use std::process::Command;
 use std::process::ExitStatus;
 
 pub fn run_cmd_async(args: &[&str]) -> Child {
-	assert!(args.len() >= 1);
+	assert!(!args.is_empty());
 	let cmd = args[0];
 	let mut cmd = Command::new(cmd);
 	for arg in &args[1..] {
@@ -18,12 +18,12 @@ pub fn run_cmd_async_vec(args: Vec<String>) -> Child {
 	run_cmd_async(&args)
 }
 
-pub fn wait_for_child(mut child: Child) -> () {
+pub fn wait_for_child(mut child: Child) {
 	let status: ExitStatus = child.wait().unwrap();
 	assert!(status.success());
 }
 
-pub fn run_cmd_sync(args: &[&str]) -> () {
+pub fn run_cmd_sync(args: &[&str]) {
 	let child = run_cmd_async(args);
 	wait_for_child(child);
 }

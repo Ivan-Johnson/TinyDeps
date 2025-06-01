@@ -38,7 +38,7 @@ impl Time for MockTime {
 	}
 
 	fn now_duration(&self) -> Duration {
-		self.data.delta.borrow().clone()
+		*self.data.delta.borrow()
 	}
 }
 

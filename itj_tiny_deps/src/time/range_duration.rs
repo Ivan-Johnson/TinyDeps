@@ -13,7 +13,7 @@ pub enum RangeDurationStop<'a> {
 impl RangeDurationStop<'_> {
 	fn get_value(&mut self) -> Duration {
 		match self {
-			RangeDurationStop::Fixed(value) => value.clone(),
+			RangeDurationStop::Fixed(value) => *value,
 			RangeDurationStop::Callback(cb) => cb(),
 		}
 	}
@@ -61,7 +61,7 @@ pub struct RandomizedRangeDurationArgs<'a> {
 
 // I'm deliberately having this be a standalone function; there's no reason to
 // expose implementation details if I don't have to.
-pub fn new_range_duration<'a>(args: RangeDurationArgs<'a>) -> impl Iterator<Item = Duration> + 'a {
+pub fn new_range_duration(args: RangeDurationArgs<'_>) -> impl Iterator<Item = Duration> + '_ {
 	// RAND%1 => no random step.
 	let rand_dur = Duration::from_secs(1);
 	let args = RandomizedRangeDurationArgs {
@@ -83,11 +83,11 @@ pub fn new_randomized_range_duration(args: RandomizedRangeDurationArgs) -> impl 
 		next += rand.rand_duration(args.step_rand_drift);
 	}
 	RangeDuration {
-		next: next,
+		next,
 		end: args.args_nonrandom.stop,
 		step: args.args_nonrandom.step,
 		step_rand_offset: args.step_rand_offset,
 		step_rand_drift: args.step_rand_drift,
-		rand: rand,
+		rand,
 	}
 }

@@ -62,7 +62,7 @@ impl IPCNC {
 			.child
 			.try_wait()
 			.expect("Unable to determine if nc has exited or not??");
-		if status != None {
+		if status.is_some() {
 			self.print_child_logs();
 			panic!("ERROR: nc has exited: {status:?}");
 		}
