@@ -169,3 +169,53 @@ impl IPCNC {
 		obj
 	}
 }
+
+// TODO: these tests are flaky. Often times one test will crash without killing
+// `nc`, and this will cause problems for future test invocations. Possibly even
+// different `cargo test` invocations.
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use std::sync::atomic::{AtomicUsize, Ordering};
+
+	const ITJ_TINY_DEPS_TEST_PORT: TcpPort = 1234;
+
+	fn get_new_port() -> TcpPort {
+		static COUNTER: AtomicUsize = AtomicUsize::new(0);
+		let offset = COUNTER.fetch_add(1, Ordering::Relaxed);
+		let offset: TcpPort = offset.try_into().unwrap();
+		ITJ_TINY_DEPS_TEST_PORT + offset
+	}
+
+	#[test]
+	// #[should_fail]
+	fn test_noop() {
+		let port = get_new_port();
+		let _server = IPCNC::open_server(port);
+		let _client = IPCNC::open_client(port);
+	}
+
+	#[test]
+	fn test_happy() {
+		let port = get_new_port();
+		let mut server = IPCNC::open_server(port);
+		let mut client = IPCNC::open_client(port);
+
+		let mut data: Vec<u8> = Vec::new();
+		data.push(123);
+
+		client.send(&data);
+
+		let response = server.read();
+		assert_eq!(data, response);
+	}
+
+	// This test hangs
+	// #[test]
+	// // #[should_fail]
+	// fn test_early_server_restart() {
+	// 	let port = get_new_port();
+	// 	let mut server = IPCNC::open_server(port);
+	// 	server.restart();
+	// }
+}
