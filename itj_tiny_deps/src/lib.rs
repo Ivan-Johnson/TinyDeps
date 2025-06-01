@@ -1,5 +1,4 @@
 #![forbid(unsafe_code)]
-#![allow(clippy::all)] // TODO: delete this line
 #![deny(clippy::large_stack_frames)]
 #![cfg_attr(debug_assertions, allow(dead_code, unused_imports, unreachable_code))]
 
