@@ -42,10 +42,9 @@ impl IPC for IPCNC {
 
 	// Even though we're using a `Box`, Clippy reports that a copy of the
 	// MAX_WRITE_SIZE buffer is getting stored on the stack
-	#[allow(clippy::large_stack_frames)]
 	fn read(&mut self) -> Vec<u8> {
 		self.assert_is_running();
-		let mut buffer: Box<[u8; MAX_WRITE_SIZE]> = Box::new([0; MAX_WRITE_SIZE]);
+		let mut buffer = vec![0; MAX_WRITE_SIZE];
 		let read_size = self.stdout.read(buffer.as_mut()).unwrap();
 		buffer[0..read_size].to_vec()
 	}
@@ -208,8 +207,7 @@ mod tests {
 		let mut server = IPCNC::open_server(port);
 		let mut client = IPCNC::open_client(port);
 
-		let mut data: Vec<u8> = Vec::new();
-		data.push(123);
+		let data: Vec<u8> = vec![123];
 
 		client.send(&data);
 
