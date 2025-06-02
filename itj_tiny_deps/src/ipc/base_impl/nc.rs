@@ -49,7 +49,7 @@ impl IPC for IPCNC {
 		buffer[0..read_size].to_vec()
 	}
 
-	fn send(&mut self, msg: &Vec<u8>) {
+	fn send(&mut self, msg: &[u8]) {
 		self.assert_is_running();
 		println!("Writing {msg:?}");
 		self.stdin.write_all(msg).unwrap();
