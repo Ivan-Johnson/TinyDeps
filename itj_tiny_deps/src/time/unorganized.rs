@@ -19,11 +19,11 @@ pub const DURATION_TROPICAL_YEAR: Duration = Duration::from_secs(SECONDS_PER_TRO
 
 /// The standard library's "duration" type doesn't support negative durations,
 /// so we are left to implement basic addition functions ourselves -_-
-pub fn duration_add_i64_secs(foo: Duration, bar: i64) -> Duration {
-	if bar >= 0 {
-		foo + Duration::from_secs(bar as u64)
+pub fn duration_add_i64_secs(dur: Duration, secs: i64) -> Duration {
+	if secs >= 0 {
+		dur + Duration::from_secs(secs as u64)
 	} else {
-		foo - Duration::from_secs((-bar) as u64)
+		dur - Duration::from_secs((-secs) as u64)
 	}
 }
 
