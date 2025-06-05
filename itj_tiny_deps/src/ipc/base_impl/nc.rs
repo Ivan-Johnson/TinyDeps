@@ -28,7 +28,9 @@ pub struct IPCNC {
 
 impl IPC for IPCNC {
 	fn restart(&mut self) {
-		self.wait_for_successful_exit(Duration::from_millis(50));
+		// Temporarily increased from 50ms. Does this fix the crash?
+		// TODO revert back to 50ms.
+		self.wait_for_successful_exit(Duration::from_millis(10_000));
 
 		let mut child = self.builder.spawn().expect("Failed to spawn nc");
 		let (stdin, stdout, stderr) = Self::take_io(&mut child);
