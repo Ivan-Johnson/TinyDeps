@@ -33,6 +33,7 @@
 				# These tests require that `nc` be available in `PATH`
 				"--skip=ipc::base_impl::nc::tests::test_noop"
 				"--skip=ipc::base_impl::nc::tests::test_happy"
+				"--skip=ipc::base_impl::nc::tests::test_early_server_restart"
 			];
 
 			cargoLock.lockFile = ./Cargo.lock;
