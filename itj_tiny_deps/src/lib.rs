@@ -1,7 +1,8 @@
-#![forbid(unsafe_code)]
 #![deny(clippy::large_stack_frames)]
 #![cfg_attr(debug_assertions, allow(dead_code, unused_imports, unreachable_code))]
 
+#[cfg(feature = "boxed_array")]
+pub mod boxed_array;
 #[cfg(feature = "command")]
 pub mod command;
 #[cfg(feature = "daemon")]
