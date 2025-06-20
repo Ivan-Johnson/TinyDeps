@@ -1,7 +1,7 @@
 {
 	description = "itj_daemon_hello_world";
 
-	inputs.nixpkgs.url = "nixpkgs/nixos-24.11-small";
+	inputs.nixpkgs.url = "nixpkgs/nixos-25.05-small";
 
 	outputs = { self, nixpkgs }: let
 		pkgs = import nixpkgs { system = "x86_64-linux"; };
