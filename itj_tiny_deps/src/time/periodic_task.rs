@@ -14,7 +14,7 @@ pub struct PeriodicTask<'a, T> {
 	period: Duration,
 }
 
-impl<'a, T> Debug for PeriodicTask<'a, T> {
+impl<T> Debug for PeriodicTask<'_, T> {
 	fn fmt(&self, fmt: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
 		fmt.debug_struct("PeriodicTask")
 			.field("callback", &"???")

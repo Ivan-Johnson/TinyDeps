@@ -128,7 +128,7 @@ impl Debug for MockHttp {
 }
 
 fn data_is_clean(data: &MockHttpDataset) -> Result<(), ()> {
-	if data.borrow().len() == 0 {
+	if data.borrow().is_empty() {
 		Ok(())
 	} else {
 		Err(())
