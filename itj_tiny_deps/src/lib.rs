@@ -1,3 +1,7 @@
+// Bizarrely, `forbid(unsafe_code)` doesn't forbid us from declaring a macro
+// that uses `unsafe`, nor does it even forbid is from using a macro that uses
+// `unsafe`.
+#![forbid(unsafe_code)]
 #![deny(clippy::large_stack_frames)]
 #![cfg_attr(debug_assertions, allow(dead_code, unused_imports, unreachable_code))]
 
