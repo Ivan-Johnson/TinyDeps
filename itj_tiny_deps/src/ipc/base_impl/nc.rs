@@ -13,7 +13,7 @@ use crate::ipc::TcpPort;
 use crate::ipc::IPC;
 use crate::time::Time;
 
-/// IIRC Linux guarantees that writes smaler than 4k are atomic; this size was
+/// IIRC Linux guarantees that writes smaller than 4k are atomic; this size was
 /// choosen accordingly.
 const MAX_WRITE_SIZE: usize = 4_000;
 
@@ -24,6 +24,14 @@ pub struct IPCNC {
 	stdout: ChildStdout,
 	stderr: ChildStderr,
 	time: Box<dyn Time>,
+}
+
+impl Drop for IPCNC {
+	fn drop(&mut self) {
+		let id = self.child.id();
+		println!("KILLING {id}");
+		let _ = self.child.kill();
+	}
 }
 
 impl IPC for IPCNC {
@@ -164,6 +172,8 @@ impl IPCNC {
 			.stderr(Stdio::piped());
 		println!("Running: {builder:?}");
 		let mut child = builder.spawn().expect("Failed to spawn nc");
+		let id = child.id();
+		println!("NC IS RUNNING AS {id}");
 		let (stdin, stdout, stderr) = Self::take_io(&mut child);
 
 		let mut obj = Self {
