@@ -1,32 +1,33 @@
-use crate::message::HelloWorldMessage;
-use itj_tiny_deps::daemon::spawn_server_thread;
+use crate::hello_message::HelloWorldMessage;
+use itj_tiny_deps::ipc::ipc_linux::FDConnection;
+use itj_tiny_deps::ipc::ipc_linux::InetServer;
+use itj_tiny_deps::ipc::MessageConnection;
+use itj_tiny_deps::ipc::Server;
 use itj_tiny_deps::ipc::TcpPort;
 use std::env;
+use std::io::ErrorKind;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
 use std::sync::mpsc::TryRecvError;
 use std::thread;
 use std::time::Duration;
 
-pub struct Server {
+pub struct HelloServer {
 	server_name: String,
-	receiver: Receiver<(HelloWorldMessage, Sender<HelloWorldMessage>)>,
-	tiny_server_handle: thread::JoinHandle<()>,
+	server: InetServer,
 	count: u32,
 }
 
-impl Server {
+impl HelloServer {
 	pub fn new(port: TcpPort) -> Self {
 		let server_name = env::var("ITJ_DAEMON_HELLO_WORLD_DEFAULT_SERVER_NAME")
 			.unwrap()
 			.to_string();
-		let (tiny_server_handle, receiver) = spawn_server_thread::<HelloWorldMessage, HelloWorldMessage>(port);
-		let count = 0;
+		let server = InetServer::new(port);
 		Self {
-			tiny_server_handle,
 			server_name,
-			receiver,
-			count,
+			count: 0,
+			server,
 		}
 	}
 
@@ -55,22 +56,24 @@ impl Server {
 
 	pub fn main(mut self) -> ! {
 		loop {
-			std::thread::sleep(Duration::from_secs(1));
+			std::thread::sleep(Duration::from_millis(300));
 			self.do_something();
 
-			assert!(!self.tiny_server_handle.is_finished());
-
-			// Note: `try_recv` is used so that `do_something` is
-			// not blocked. If you don't actually need to do
-			// anything other than respond to messages, try using
-			// `recv` instead.
-			let new_msg = self.receiver.try_recv();
-			if let Err(TryRecvError::Empty) = new_msg {
+			let connection = self.server.poll_connection();
+			if connection.is_none() {
 				continue;
 			};
-			let (msg, tx_resp) = new_msg.unwrap();
-			let resp = self.process(&msg);
-			tx_resp.send(resp).unwrap();
+			let mut connection = MessageConnection::new(connection.unwrap());
+			loop {
+				let result = connection.read_message();
+				if let Err(error) = result {
+					assert_eq!(ErrorKind::ConnectionReset, error);
+					break;
+				}
+				let msg = result.unwrap();
+				let resp = self.process(&msg);
+				connection.send_message(&resp);
+			}
 		}
 	}
 }

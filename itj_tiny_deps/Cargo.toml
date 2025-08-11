@@ -6,9 +6,15 @@ edition = "2021"
 [features]
 boxed_array = []
 command = []
-daemon = ["ipc"]
 error_handling = []
 http = ["error_handling", "time"]
 ipc = ["time"]
+ipc_linux = ["ipc", "dep:libc"]
+ipc_linux_fd_connection = ["ipc_linux"]
+ipc_linux_inet_server = ["ipc_linux", "ipc_linux_inet_client"]
+ipc_linux_inet_client = ["ipc_linux", "ipc_linux_fd_connection"]
 random = []
 time = ["random"]
+
+[dependencies]
+libc = {version="0.2", optional=true}

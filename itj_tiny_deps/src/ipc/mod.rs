@@ -1,6 +1,10 @@
-mod base;
-mod base_impl;
+#[cfg(feature = "ipc_linux")]
+pub mod ipc_linux;
+mod ipc_message;
+mod traits;
 
-pub use base::TcpPort;
-pub use base::IPC;
-pub use base_impl::nc::IPCNC;
+pub use ipc_message::Message;
+pub use ipc_message::MessageConnection;
+pub use traits::Connection;
+pub use traits::Server;
+pub use traits::TcpPort;

@@ -1,4 +1,4 @@
-use itj_tiny_deps::daemon::MessageSerializer;
+use itj_tiny_deps::ipc::Message;
 
 #[derive(Debug, PartialEq)]
 pub enum HelloWorldMessage {
@@ -8,9 +8,9 @@ pub enum HelloWorldMessage {
 	Ack,
 }
 
-impl MessageSerializer<HelloWorldMessage> for HelloWorldMessage {
-	fn serialize(msg: &HelloWorldMessage) -> Vec<u8> {
-		let (msg_type, str_val): (u8, String) = match msg {
+impl Message for HelloWorldMessage {
+	fn serialize(&self) -> Vec<u8> {
+		let (msg_type, str_val): (u8, String) = match self {
 			HelloWorldMessage::Greet(str_val) => (0, str_val.clone()),
 			HelloWorldMessage::SetServerName(str_val) => (1, str_val.clone()),
 			HelloWorldMessage::GreetingResponse(str_val) => (2, str_val.clone()),
@@ -23,7 +23,7 @@ impl MessageSerializer<HelloWorldMessage> for HelloWorldMessage {
 		final_msg
 	}
 
-	fn deserialize(msg: &[u8]) -> HelloWorldMessage {
+	fn deserialize(msg: &[u8]) -> Self {
 		let msg_type = msg[0];
 		let msg_str = std::str::from_utf8(&msg[1..])
 			.expect("Could not parse message data: {msg}")

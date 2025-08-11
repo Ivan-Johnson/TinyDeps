@@ -1,8 +1,23 @@
-use crate::message::HelloWorldMessage;
-use crate::server::Server;
+use crate::hello_message::HelloWorldMessage;
+use crate::hello_server::HelloServer;
 use argh::FromArgs;
-use itj_tiny_deps::daemon::Client;
+use itj_tiny_deps::ipc::ipc_linux::new_inet_client;
+use itj_tiny_deps::ipc::ipc_linux::FDConnection;
+use itj_tiny_deps::ipc::MessageConnection;
 use itj_tiny_deps::ipc::TcpPort;
+
+// TODO: cleanup. I'm not really sure what.
+// * split into separate functions or something?
+// * Move to hello_message.rs?
+// * actually. Best option is to create a `HelloClient` struct that has pretty APIs?
+//   * e.g. `fn greet() -> greetResponse`
+fn send_and_get_response(port: TcpPort, msg: &HelloWorldMessage) -> HelloWorldMessage {
+	let connection = new_inet_client(port);
+	let mut connection = MessageConnection::<HelloWorldMessage, FDConnection>::new(connection);
+
+	connection.send_message(msg);
+	connection.read_message().unwrap()
+}
 
 const DEFAULT_PORT: TcpPort = 15829;
 
@@ -52,9 +67,10 @@ struct GreetConfig {
 impl GreetConfig {
 	pub fn main(self) -> ! {
 		let msg = HelloWorldMessage::Greet(self.name);
-
-		let mut client = Client::<HelloWorldMessage, HelloWorldMessage>::new(self.port);
-		let response = client.send_message(&msg);
+		let response = send_and_get_response(self.port, &msg);
+		let HelloWorldMessage::GreetingResponse(response) = response else {
+			panic!("Expected GreetingResponse; got {response:?}");
+		};
 		println!("Got this response: {response:?}");
 		std::process::exit(0)
 	}
@@ -75,9 +91,7 @@ struct SetServerNameConfig {
 impl SetServerNameConfig {
 	pub fn main(self) -> ! {
 		let msg = HelloWorldMessage::SetServerName(self.new_name);
-
-		let mut client = Client::<HelloWorldMessage, HelloWorldMessage>::new(self.port);
-		let response = client.send_message(&msg);
+		let response = send_and_get_response(self.port, &msg);
 		assert_eq!(response, HelloWorldMessage::Ack);
 		std::process::exit(0)
 	}
@@ -94,7 +108,7 @@ struct StartDaemonConfig {
 
 impl StartDaemonConfig {
 	pub fn main(self) -> ! {
-		let server = Server::new(self.port);
+		let server = HelloServer::new(self.port);
 		server.main()
 	}
 }
