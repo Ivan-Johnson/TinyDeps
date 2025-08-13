@@ -16,7 +16,11 @@ fn send_and_get_response(port: TcpPort, msg: &HelloWorldMessage) -> HelloWorldMe
 	let mut connection = MessageConnection::<HelloWorldMessage, FDConnection>::new(connection);
 
 	connection.send_message(msg);
-	connection.read_message().unwrap()
+	let response = connection
+		.read_message()
+		.expect("Got an error when reading a response");
+	assert_ne!(None, response, "Expected a response, but got EOF");
+	response.unwrap()
 }
 
 const DEFAULT_PORT: TcpPort = 15829;

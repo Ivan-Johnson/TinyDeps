@@ -66,13 +66,18 @@ impl HelloServer {
 			let mut connection = MessageConnection::new(connection.unwrap());
 			loop {
 				let result = connection.read_message();
-				if let Err(error) = result {
-					assert_eq!(ErrorKind::ConnectionReset, error.kind());
+				if let Ok(None) = result {
+					println!("Connection closed");
 					break;
 				}
-				let msg = result.unwrap();
-				let resp = self.process(&msg);
-				connection.send_message(&resp);
+				if let Ok(Some(ref msg)) = result {
+					println!("Processing message: {msg:?}");
+					let resp = self.process(msg);
+					connection.send_message(&resp);
+				}
+				let err = result.unwrap_err();
+				assert_eq!(ErrorKind::WouldBlock, err.kind());
+				std::thread::sleep(Duration::from_millis(50));
 			}
 		}
 	}

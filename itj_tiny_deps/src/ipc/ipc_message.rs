@@ -20,9 +20,14 @@ impl<TMsg: Message, TConnection: Connection> MessageConnection<TMsg, TConnection
 		}
 	}
 
-	pub fn read_message(&mut self) -> Result<TMsg, Error> {
+	pub fn read_message(&mut self) -> Result<Option<TMsg>, Error> {
 		let bytes = self.ipc.read()?;
-		Ok(TMsg::deserialize(&bytes))
+
+		if bytes.is_empty() {
+			Ok(None)
+		} else {
+			Ok(Some(TMsg::deserialize(&bytes)))
+		}
 	}
 
 	pub fn send_message(&mut self, message: &TMsg) {
