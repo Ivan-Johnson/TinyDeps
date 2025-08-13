@@ -67,7 +67,7 @@ impl HelloServer {
 			loop {
 				let result = connection.read_message();
 				if let Err(error) = result {
-					assert_eq!(ErrorKind::ConnectionReset, error);
+					assert_eq!(ErrorKind::ConnectionReset, error.kind());
 					break;
 				}
 				let msg = result.unwrap();

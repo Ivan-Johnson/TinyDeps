@@ -1,11 +1,11 @@
-use std::io::ErrorKind;
+use std::io::Error;
 
 pub type TcpPort = u16;
 
 pub trait Connection {
-	fn read(&mut self) -> Result<Vec<u8>, ErrorKind>;
+	fn read(&mut self) -> Result<Vec<u8>, Error>;
 	// TODO: rename to write?
-	fn send(&mut self, msg: &[u8]) -> Result<(), ErrorKind>;
+	fn send(&mut self, msg: &[u8]) -> Result<(), Error>;
 }
 
 pub trait Server<C: Connection> {

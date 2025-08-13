@@ -1,5 +1,5 @@
 use crate::ipc::Connection;
-use std::io::ErrorKind;
+use std::io::Error;
 use std::marker::PhantomData;
 
 pub trait Message {
@@ -20,7 +20,7 @@ impl<TMsg: Message, TConnection: Connection> MessageConnection<TMsg, TConnection
 		}
 	}
 
-	pub fn read_message(&mut self) -> Result<TMsg, ErrorKind> {
+	pub fn read_message(&mut self) -> Result<TMsg, Error> {
 		let bytes = self.ipc.read()?;
 		Ok(TMsg::deserialize(&bytes))
 	}
