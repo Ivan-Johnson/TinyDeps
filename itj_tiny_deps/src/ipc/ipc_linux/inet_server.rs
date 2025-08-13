@@ -1,5 +1,6 @@
 use crate::ipc::ipc_linux::fd_connection::FDConnection;
 use crate::ipc::ipc_linux::sockaddr::new_sockaddr_in;
+use crate::ipc::ipc_linux::sockaddr::string_from_sockaddr_in;
 use crate::ipc::Connection;
 use crate::ipc::Server;
 use crate::ipc::TcpPort;
@@ -9,9 +10,11 @@ use libc::c_int;
 use libc::c_void;
 use libc::close;
 use libc::connect;
+use libc::getsockname;
 use libc::htonl as network_u32_from_host;
 use libc::htons as network_u16_from_host;
 use libc::listen;
+use libc::ntohs as host_u16_from_network;
 use libc::sockaddr;
 use libc::sockaddr_in;
 use libc::socket;
@@ -75,6 +78,28 @@ impl InetServer {
 
 		Self { fd }
 	}
+
+	pub fn get_port(&self) -> TcpPort {
+		let size_const: socklen_t = std::mem::size_of::<sockaddr_in>().try_into().unwrap();
+		let mut size_mut: socklen_t = size_const;
+		let size_mut_ptr = &mut size_mut as *mut socklen_t;
+
+		let mut addr = new_sockaddr_in(Ipv4Addr::new(0, 0, 0, 0), 0);
+		let addr_ptr = &mut addr as *mut sockaddr_in as *mut libc::sockaddr;
+
+		let ret_get = unsafe { getsockname(self.fd, addr_ptr, size_mut_ptr) };
+		assert_eq!(0, ret_get);
+		assert_eq!(size_const, size_mut);
+
+		// println!("get_port -> {}", string_from_sockaddr_in(addr));
+		host_u16_from_network(addr.sin_port)
+	}
+}
+
+impl Default for InetServer {
+	fn default() -> Self {
+		Self::new(0)
+	}
 }
 
 impl Server<FDConnection> for InetServer {
@@ -102,49 +127,47 @@ mod tests {
 	use std::sync::atomic::Ordering;
 	use std::time::Duration;
 
-	const ITJ_TINY_DEPS_TEST_PORT: TcpPort = 6100;
-
-	fn get_new_port() -> TcpPort {
-		static COUNTER: AtomicUsize = AtomicUsize::new(0);
-		let offset = COUNTER.fetch_add(1, Ordering::Relaxed);
-		let offset: TcpPort = offset.try_into().unwrap();
-		ITJ_TINY_DEPS_TEST_PORT + offset
-	}
-
 	#[test]
 	fn test_server_create() {
-		let port = get_new_port();
-		let _server = InetServer::new(port);
+		InetServer::default();
 	}
 
 	#[test]
 	#[should_panic]
 	fn test_client_without_server() {
-		let port = get_new_port();
+		let srv = InetServer::default();
+		let port = srv.get_port();
+		drop(srv);
+
 		// This should fail because the server is not running
-		let _client = new_inet_client(port);
+		new_inet_client(port);
 	}
 
 	#[test]
 	#[should_panic]
 	fn test_two_servers_one_port() {
-		let port = get_new_port();
-		let _server1 = InetServer::new(port);
-		let _server2 = InetServer::new(port); // conflict should cause panic
+		let server1 = InetServer::default();
+		let port1 = server1.get_port();
+		std::thread::sleep(Duration::from_millis(200));
+
+		// Attempting to setup a second server on the same port should
+		// cause a panic
+		let server2 = InetServer::new(port1);
+		let port2 = server2.get_port();
+		println!("Test did not panic as expected?? {port1}, {port2}");
 	}
 
 	#[test]
 	fn test_server_no_connection() {
-		let port = get_new_port();
-		let mut server = InetServer::new(port);
+		let mut server = InetServer::default();
 		let con = server.poll_connection();
 		assert!(con.is_none());
 	}
 
 	#[test]
 	fn test_happy() {
-		let port = get_new_port();
-		let mut server = InetServer::new(port);
+		let mut server = InetServer::default();
+		let port = server.get_port();
 		std::thread::sleep(Duration::from_millis(200));
 		let mut client_con = new_inet_client(port);
 		let mut server_con = server.poll_connection().unwrap();
