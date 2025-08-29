@@ -1,15 +1,10 @@
 use crate::hello_message::HelloWorldMessage;
-use itj_tiny_deps::ipc::ipc_linux::FDConnection;
 use itj_tiny_deps::ipc::ipc_linux::InetServer;
 use itj_tiny_deps::ipc::MessageConnection;
 use itj_tiny_deps::ipc::Server;
 use itj_tiny_deps::ipc::TcpPort;
 use std::env;
 use std::io::ErrorKind;
-use std::sync::mpsc::Receiver;
-use std::sync::mpsc::Sender;
-use std::sync::mpsc::TryRecvError;
-use std::thread;
 use std::time::Duration;
 
 pub struct HelloServer {

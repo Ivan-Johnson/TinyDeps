@@ -1,29 +1,9 @@
 use crate::ipc::Connection;
-use crate::ipc::Server;
-use crate::ipc::TcpPort;
-use libc::accept;
-use libc::bind;
 use libc::c_int;
 use libc::c_void;
 use libc::close;
-use libc::connect;
-use libc::htonl as network_u32_from_host;
-use libc::htons as network_u16_from_host;
-use libc::listen;
-use libc::sockaddr;
-use libc::sockaddr_in;
-use libc::socket;
-use libc::socklen_t;
 use libc::ssize_t;
-use libc::AF_INET;
-use libc::EINPROGRESS;
-use libc::IPPROTO_TCP;
-use libc::SOCK_NONBLOCK;
-use libc::SOCK_STREAM;
 use std::io::Error;
-use std::io::ErrorKind;
-use std::net::Ipv4Addr;
-use std::ptr::null_mut;
 
 /// IIRC Linux guarantees that writes smaller than 4k are atomic; this size was
 /// choosen accordingly.

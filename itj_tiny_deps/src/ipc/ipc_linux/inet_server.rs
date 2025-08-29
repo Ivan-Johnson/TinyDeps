@@ -1,32 +1,22 @@
 use crate::ipc::ipc_linux::fd_connection::FDConnection;
 use crate::ipc::ipc_linux::sockaddr::new_sockaddr_in;
-use crate::ipc::ipc_linux::sockaddr::string_from_sockaddr_in;
-use crate::ipc::Connection;
 use crate::ipc::Server;
 use crate::ipc::TcpPort;
-use libc::accept;
 use libc::bind;
 use libc::c_int;
-use libc::c_void;
 use libc::close;
-use libc::connect;
 use libc::getsockname;
-use libc::htonl as network_u32_from_host;
-use libc::htons as network_u16_from_host;
 use libc::listen;
 use libc::ntohs as host_u16_from_network;
 use libc::sockaddr;
 use libc::sockaddr_in;
 use libc::socket;
 use libc::socklen_t;
-use libc::ssize_t;
 use libc::AF_INET;
-use libc::EINPROGRESS;
 use libc::IPPROTO_TCP;
 use libc::SOCK_NONBLOCK;
 use libc::SOCK_STREAM;
 use std::io::Error;
-use std::io::ErrorKind;
 use std::net::Ipv4Addr;
 use std::ptr::null_mut;
 
@@ -123,8 +113,7 @@ impl Server<FDConnection> for InetServer {
 mod tests {
 	use super::*;
 	use crate::ipc::ipc_linux::new_inet_client;
-	use std::sync::atomic::AtomicUsize;
-	use std::sync::atomic::Ordering;
+	use crate::ipc::traits::Connection;
 	use std::time::Duration;
 
 	#[test]
