@@ -41,7 +41,7 @@ pub fn round_duration_down(duration: Duration, multiple: u64) -> Duration {
 	let secs = duration.as_secs();
 
 	// I'm pretty sure there are more elegant solutions that don't involve an `if`. I'm too lazy to do the math though.
-	if secs % multiple == 0 {
+	if secs.is_multiple_of(multiple) {
 		return duration;
 	}
 

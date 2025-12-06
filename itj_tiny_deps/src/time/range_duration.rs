@@ -73,7 +73,7 @@ pub fn new_range_duration(args: RangeDurationArgs<'_>) -> impl Iterator<Item = D
 	new_randomized_range_duration(args)
 }
 
-pub fn new_randomized_range_duration(args: RandomizedRangeDurationArgs) -> impl Iterator<Item = Duration> + '_ {
+pub fn new_randomized_range_duration(args: RandomizedRangeDurationArgs<'_>) -> impl Iterator<Item = Duration> + '_ {
 	let mut rand = RandomFromFile::default();
 	let mut next = args.args_nonrandom.start;
 	if args.do_random_pre_step {
