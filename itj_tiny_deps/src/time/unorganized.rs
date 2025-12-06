@@ -40,22 +40,15 @@ pub fn get_date_as_string() -> String {
 pub fn round_duration_down(duration: Duration, multiple: u64) -> Duration {
 	let secs = duration.as_secs();
 
-	// I'm pretty sure there are more elegant solutions that don't involve an `if`. I'm too lazy to do the math though.
-	if secs.is_multiple_of(multiple) {
-		return duration;
-	}
+	let remainder = secs % multiple;
 
-	let round_down = (secs / multiple) * multiple;
-	Duration::from_secs(round_down)
+	Duration::from_secs(secs - remainder)
 }
 
 pub fn round_duration_up(duration: Duration, multiple: u64) -> Duration {
-	let down = round_duration_down(duration, multiple);
+	let secs = duration.as_secs();
 
-	// also yuk
-	if down == duration {
-		down
-	} else {
-		down + Duration::from_secs(multiple)
-	}
+	let remainder = secs % multiple;
+
+	Duration::from_secs(secs + multiple - remainder)
 }
