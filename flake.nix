@@ -1,5 +1,5 @@
 {
-	description = "itj_daemon_hello_world";
+	description = "Ivan Johnson's Rust Library of random utilities";
 
 	inputs.nixpkgs.url = "nixpkgs/nixos-25.05-small";
 
