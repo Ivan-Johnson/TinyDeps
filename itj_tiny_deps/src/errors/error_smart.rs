@@ -47,6 +47,33 @@ impl ErrorSmart {
 	}
 }
 
+/// `ResultSmart` is syntax sugar, but not in the way you might think.
+///
+/// It is NOT an alias for `Result<T, ErrorSmart>`; attempting to use it as such
+/// will cause a build failure:
+///
+/// ```compile_fail
+/// # use itj_tiny_deps::errors::ResultSmart;
+/// fn main() -> ResultSmart<()> {
+///     return Ok(());
+/// }
+/// ```
+///
+/// (TODO: I really should rename it to avoid this ambiguity... And add a
+/// separate type alias that actually works that way)
+///
+/// Instead, it simply makes it simpler to add additional details to an error
+/// before propagating it up the stack with `?`:
+///
+/// ```
+/// # use itj_tiny_deps::errors::ResultSmart;
+/// # use itj_tiny_deps::errors::ErrorSmart;
+/// fn main() -> Result<(), ErrorSmart> {
+///     let foo: Result<(), ErrorSmart> = Ok(());
+///     let foo = foo.push_light("ABC failed while trying to XYZ")?;
+///     return Ok(foo);
+/// }
+/// ```
 pub trait ResultSmart {
 	#[allow(dead_code)]
 	fn push_light(self, message: &'static str) -> Self;
