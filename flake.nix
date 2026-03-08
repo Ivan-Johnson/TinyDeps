@@ -17,10 +17,10 @@
 
 				# compile time environment variables
 				# env = {
-				#       # Works
-				# 	ITJ_DAEMON_HELLO_WORLD_DEFAULT_SERVER_NAME = "Alice";
-				#       # Does not work as-is. Would need to do some heavy refactoring to be able to access `options` from here.
-				# 	ITJ_DAEMON_HELLO_WORLD_DEFAULT_SERVER_NAME = options.programs.itj_daemon_hello_world.default_server_name;
+				#  # Works
+				#  ITJ_DAEMON_HELLO_WORLD_DEFAULT_SERVER_NAME = "Alice";
+				#  # Does not work as-is. Would need to do some heavy refactoring to be able to access `options` from here.
+				#  ITJ_DAEMON_HELLO_WORLD_DEFAULT_SERVER_NAME = options.programs.itj_daemon_hello_world.default_server_name;
 				# };
 
 				buildInputs = [
