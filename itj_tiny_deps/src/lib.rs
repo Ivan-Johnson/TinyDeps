@@ -5,7 +5,6 @@
 pub mod boxed_array;
 #[cfg(feature = "command")]
 pub mod command;
-#[cfg(feature = "error_handling")]
 pub mod errors;
 #[cfg(feature = "http")]
 pub mod http;
