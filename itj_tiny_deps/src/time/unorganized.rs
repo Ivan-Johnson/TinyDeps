@@ -52,3 +52,23 @@ pub fn round_duration_up(duration: Duration, multiple: u64) -> Duration {
 
 	Duration::from_secs(secs + multiple - remainder)
 }
+
+/// Parse a duration from a string with a suffix ('s' for seconds, 'm' for minutes).
+///
+/// Examples: "30s", "5m", "120s"
+pub fn duration_from_str(dur_str: &str) -> Duration {
+	let (value_str, scale_factor) = if let Some(value_str) = dur_str.strip_suffix("s") {
+		(value_str, 1)
+	} else if let Some(value_str) = dur_str.strip_suffix("m") {
+		(value_str, 60)
+	} else {
+		panic!("Err no suffix");
+	};
+	let dur_value: Result<u64, _> = value_str.parse();
+	assert!(
+		dur_value.is_ok(),
+		"Could not parse duration string '{dur_str}' as an int"
+	);
+	let dur_value = dur_value.unwrap();
+	Duration::from_secs(dur_value * scale_factor)
+}
