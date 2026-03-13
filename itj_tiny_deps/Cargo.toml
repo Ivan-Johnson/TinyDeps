@@ -12,6 +12,8 @@ ipc_linux = ["ipc", "dep:libc"]
 ipc_linux_fd_connection = ["ipc_linux"]
 ipc_linux_inet_server = ["ipc_linux", "ipc_linux_inet_client"]
 ipc_linux_inet_client = ["ipc_linux", "ipc_linux_fd_connection"]
+notification = []
+notification_notify_send = ["notification"]
 random = []
 time = ["random"]
 

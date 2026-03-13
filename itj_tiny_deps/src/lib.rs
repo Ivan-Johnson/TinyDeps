@@ -10,6 +10,8 @@ pub mod errors;
 pub mod http;
 #[cfg(feature = "ipc")]
 pub mod ipc;
+#[cfg(feature = "notification")]
+pub mod notification;
 #[cfg(feature = "random")]
 pub mod random;
 #[cfg(feature = "time")]
