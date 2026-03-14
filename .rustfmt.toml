@@ -1,4 +1,9 @@
 max_width = 120
+# As of 2026-03, wrapping comments is still experimental -_-
+# comment_width = 0 # my understanding is that using `0` is necessary for narrow comments to be unwrapped
+# wrap_comments = true
+# https://github.com/rust-lang/rustfmt/issues/3347
+# https://rust-lang.github.io/rustfmt/?version=v1.9.0&search=#comment_width
 hard_tabs = true
 tab_spaces = 8
 newline_style = "Auto"
