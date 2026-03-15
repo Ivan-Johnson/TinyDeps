@@ -1,3 +1,6 @@
+use std::fmt::Display;
+
+// TODO: merge structs into enum
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct StackFrame {
 	message: String,
@@ -100,5 +103,31 @@ impl<T> ResultSmart for Result<T, ErrorSmart> {
 		let location = std::panic::Location::caller();
 		val.push_heavy_manual(message, location.file(), location.line());
 		self
+	}
+}
+
+// TODO: Figure out why argh requires ErrorSmart to implement Display.
+//
+// ```
+// error[E0277]: `itj_tiny_deps::errors::ErrorSmart` doesn't implement `std::fmt::Display`
+//   --> itj_autolock/src/cli.rs:77:13
+//    |
+// 77 |     lock_type: LockType,
+//    |                ^^^^^^^^ the trait `std::fmt::Display` is not implemented for `itj_tiny_deps::errors::ErrorSmart`
+//    |
+//    = note: required for `lockscreen::lockscreen_trait::LockType` to implement `argh::FromArgValue`
+// ```
+impl Display for ErrorSmart {
+	fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), std::fmt::Error> {
+		write!(fmt, "ErrorSmart([").unwrap();
+		for frame in &self.stack {
+			match frame {
+				TracePoint::Light(light) => write!(fmt, "Light({})", light.message).unwrap(),
+				// TODO: add file & line?
+				TracePoint::Heavy(heavy) => write!(fmt, "Heavy({})", heavy.message).unwrap(),
+			};
+		}
+		write!(fmt, "])").unwrap();
+		Ok(())
 	}
 }
