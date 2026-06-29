@@ -24,10 +24,10 @@ pub fn wait_for_child(mut child: Child) {
 
 pub fn run_cmd_output(args: &[&str]) -> Result<Output, ErrorSmart> {
 	assert!(!args.is_empty());
-	let output = match Command::new(args[0]).args(&args[1..]).output() {
-		Ok(output) => output,
-		Err(err) => return ErrorSmart::new_heavy(format!("Failed to run command {:?}: {err}", args)),
-	};
+	let output = Command::new(args[0])
+		.args(&args[1..])
+		.output()
+		.or_else(|err| ErrorSmart::new_heavy(format!("Failed to run command {args:?}: {err}")))?;
 
 	if output.status.success() {
 		return Ok(output);
@@ -38,7 +38,7 @@ pub fn run_cmd_output(args: &[&str]) -> Result<Output, ErrorSmart> {
 		"Command {:?} failed with status {:?}: {}",
 		args,
 		output.status.code(),
-		stderr.trim()
+		stderr.trim(),
 	))
 }
 
