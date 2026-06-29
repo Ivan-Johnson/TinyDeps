@@ -1,14 +1,13 @@
+use crate::errors::ErrorSmart;
 use std::process::Child;
 use std::process::Command;
 use std::process::ExitStatus;
+use std::process::Output;
 
 pub fn run_cmd_async(args: &[&str]) -> Child {
 	assert!(!args.is_empty());
-	let cmd = args[0];
-	let mut cmd = Command::new(cmd);
-	for arg in &args[1..] {
-		cmd.arg(arg);
-	}
+	let mut cmd = Command::new(args[0]);
+	cmd.args(&args[1..]);
 	cmd.spawn().expect("ERROR: could not launch {cmd}")
 }
 
@@ -21,6 +20,26 @@ pub fn run_cmd_async_vec(args: Vec<String>) -> Child {
 pub fn wait_for_child(mut child: Child) {
 	let status: ExitStatus = child.wait().unwrap();
 	assert!(status.success());
+}
+
+pub fn run_cmd_output(args: &[&str]) -> Result<Output, ErrorSmart> {
+	assert!(!args.is_empty());
+	let output = match Command::new(args[0]).args(&args[1..]).output() {
+		Ok(output) => output,
+		Err(err) => return ErrorSmart::new_heavy(format!("Failed to run command {:?}: {err}", args)),
+	};
+
+	if output.status.success() {
+		return Ok(output);
+	}
+
+	let stderr = String::from_utf8_lossy(&output.stderr);
+	ErrorSmart::new_heavy(format!(
+		"Command {:?} failed with status {:?}: {}",
+		args,
+		output.status.code(),
+		stderr.trim()
+	))
 }
 
 pub fn run_cmd_sync(args: &[&str]) {
