@@ -39,7 +39,7 @@ impl Connection for FDConnection {
 		if size == -1 {
 			return Err(std::io::Error::last_os_error());
 		}
-		assert_eq!(msg.len(), size.try_into().unwrap());
+		assert_eq!(msg.len(), usize::try_from(size).unwrap());
 		Ok(())
 	}
 }
