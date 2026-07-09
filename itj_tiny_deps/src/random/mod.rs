@@ -6,6 +6,8 @@ mod sway_subscribe;
 
 pub use from_file::RandomFromFile;
 pub use random_trait::Random;
+
+// TODO: This doesn't belong in the "random" module. Random means random, not miscellaneous.
 pub use sway_subscribe::SwayInput;
 pub use sway_subscribe::SwayInputEvent;
 pub use sway_subscribe::SwayInputSubscribe;

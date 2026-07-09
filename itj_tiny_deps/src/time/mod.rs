@@ -15,6 +15,7 @@ pub use time_trait::real_time::RealTime;
 pub use time_trait::time::Time;
 pub use unorganized::duration_add_i64_secs;
 pub use unorganized::duration_from_str;
+pub use unorganized::env_var_as_duration;
 pub use unorganized::get_date_as_string;
 pub use unorganized::round_duration_down;
 pub use unorganized::round_duration_up;
