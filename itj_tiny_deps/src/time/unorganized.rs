@@ -72,16 +72,3 @@ pub fn duration_from_str(dur_str: &str) -> Result<Duration, ErrorSmart> {
 	};
 	Ok(Duration::from_secs(value * scale_factor))
 }
-
-pub fn env_var_as_duration(name: &str) -> Duration {
-	let val_str =
-		std::env::var(name).unwrap_or_else(|_| panic!("Failed to fetch the {:?} environment variable", name));
-	let val = duration_from_str(&val_str).unwrap_or_else(|_| {
-		panic!(
-			"The value of the {:?} environment variable ({:?}) could not be parsed as a duration",
-			name, val_str
-		)
-	});
-	println!("{name:?} -> {val:?}");
-	val
-}
