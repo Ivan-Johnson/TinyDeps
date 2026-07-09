@@ -4,10 +4,13 @@ use core::fmt::Debug;
 use core::time::Duration;
 use std::rc::Rc;
 use std::time::Instant;
+use std::time::SystemTime;
+use std::time::UNIX_EPOCH;
 
 #[derive(Debug)]
 struct MockTimeData {
 	start_i: Instant,
+	start_dur: Duration,
 	delta: RefCell<Duration>,
 }
 
@@ -20,6 +23,7 @@ impl Default for MockTime {
 	fn default() -> Self {
 		let data = Rc::new(MockTimeData {
 			start_i: Instant::now(),
+			start_dur: SystemTime::now().duration_since(UNIX_EPOCH).unwrap(),
 			delta: RefCell::new(Duration::from_secs(100_000)),
 		});
 		Self { data }
@@ -38,7 +42,7 @@ impl Time for MockTime {
 	}
 
 	fn now_duration(&self) -> Duration {
-		*self.data.delta.borrow()
+		self.data.start_dur + *self.data.delta.borrow()
 	}
 }
 
