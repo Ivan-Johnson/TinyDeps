@@ -72,3 +72,13 @@ pub fn duration_from_str(dur_str: &str) -> Result<Duration, ErrorSmart> {
 	};
 	Ok(Duration::from_secs(value * scale_factor))
 }
+
+/// Pretty-print a duration. Round the value to make the string shorter.
+pub fn round_and_format_duration(dur: Duration) -> String {
+	let dur_s: u32 = dur.as_secs().try_into().unwrap();
+	if dur_s < 120 {
+		format!("{dur_s:?}s")
+	} else {
+		format!("{:?}m", dur_s / 60)
+	}
+}
