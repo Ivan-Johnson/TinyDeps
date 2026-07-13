@@ -10,6 +10,7 @@ pub mod errors;
 pub mod http;
 #[cfg(feature = "ipc")]
 pub mod ipc;
+pub mod join_handle_join_on_drop;
 #[cfg(feature = "notification")]
 pub mod notification;
 #[cfg(feature = "random")]

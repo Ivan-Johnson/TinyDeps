@@ -1,6 +1,6 @@
 use super::child_kill_on_drop::ChildKillOnDrop;
-use super::join_handle_join_on_drop::JoinHandleJoinOnDrop;
 use crate::errors::ErrorSmart;
+use crate::join_handle_join_on_drop::JoinHandleJoinOnDrop;
 use serde::Deserialize;
 use std::fmt::Debug;
 use std::io::BufRead;

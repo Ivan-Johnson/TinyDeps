@@ -1,6 +1,5 @@
 mod child_kill_on_drop;
 mod from_file;
-mod join_handle_join_on_drop;
 mod random_trait;
 mod sway_subscribe;
 
