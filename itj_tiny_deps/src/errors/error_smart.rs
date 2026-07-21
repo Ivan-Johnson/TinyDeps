@@ -37,9 +37,17 @@ impl ErrorSmart {
 	#[track_caller]
 	pub fn new_heavy<T>(message: String) -> Result<T, Self> {
 		let location = std::panic::Location::caller();
+		Err(Self::new_heavy_manual(
+			message,
+			location.file(),
+			location.line(),
+		))
+	}
+
+	pub fn new_heavy_manual(message: String, file: &'static str, line: u32) -> Self {
 		let mut obj = ErrorSmart { stack: vec![] };
-		obj.push_heavy_manual(message, location.file(), location.line());
-		Err(obj)
+		obj.push_heavy_manual(message, file, line);
+		obj
 	}
 
 	pub fn new_light<T>(message: &'static str) -> Result<T, Self> {
@@ -47,6 +55,18 @@ impl ErrorSmart {
 		Err(ErrorSmart {
 			stack: vec![TracePoint::Light(frame)],
 		})
+	}
+
+	#[track_caller]
+	pub fn push_heavy(&mut self, message: String) -> &mut Self {
+		let location = std::panic::Location::caller();
+		self.push_heavy_manual(message, location.file(), location.line());
+		self
+	}
+
+	pub fn panic(&mut self) -> ! {
+		// TODO: is this pretty?
+		panic!("{}", self);
 	}
 }
 
