@@ -3,8 +3,8 @@ use core::fmt::Formatter;
 use std::thread;
 use std::time::Duration;
 
-pub trait Plugin /* : Sized */ {
-	fn poll(self) -> Box<dyn Plugin>;
+pub trait Plugin {
+	fn poll(&mut self);
 }
 
 /// A tiny synchronous plugin runner.
@@ -30,11 +30,8 @@ impl PluginRunner {
 	pub fn main(mut self) -> ! {
 		loop {
 			thread::sleep(Duration::from_millis(100));
-			// TODO: This feels like an awful hack. Is there a better way?
-			let tmp = std::mem::replace(&mut self.plugins, Vec::default());
-			for plugin in tmp {
-				let plugin = plugin.poll();
-				self.plugins.push(plugin);
+			for plugin in &mut self.plugins {
+				plugin.poll();
 			}
 		}
 	}
