@@ -1,8 +1,5 @@
 use crate::plugins::Plugin;
 use crate::time::Time;
-use core::fmt::Debug;
-use core::fmt::Formatter;
-use std::thread;
 use std::time::Duration;
 
 // TODO: make a separate builder struct?
