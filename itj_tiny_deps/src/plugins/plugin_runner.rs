@@ -31,10 +31,12 @@ impl<T: Time> PluginRunner<T> {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use crate::plugins::EnqueuePlugin;
 	use crate::plugins::TallyPlugin;
 	use crate::time::MockTime;
 	use core::time::Duration;
 	use std::cell::RefCell;
+	use std::collections::VecDeque;
 	use std::rc::Rc;
 
 	const POLL_FREQUENCY: Duration = Duration::from_millis(100);
@@ -76,9 +78,9 @@ mod tests {
 
 	#[test]
 	fn test_poll_order() {
-		let queue: Rc<RefCell<Vec<char>>> = vec![].into();
-		let enqueue_a: EnqueuePlugin<char> = EnqueuePlugin::new(queue.clone(), 'a');
-		let enqueue_b: EnqueuePlugin<char> = EnqueuePlugin::new(queue.clone(), 'b');
+		let queue: Rc<RefCell<VecDeque<char>>> = Rc::new(RefCell::new(VecDeque::new()));
+		let enqueue_a = EnqueuePlugin::new(queue.clone(), 'a');
+		let enqueue_b = EnqueuePlugin::new(queue.clone(), 'b');
 
 		let runner = PluginRunner {
 			plugins: vec![Box::new(enqueue_a), Box::new(enqueue_b)],
@@ -87,14 +89,14 @@ mod tests {
 		};
 
 		let runner = runner.poll();
-		assert_eq!(queue.pop(), 'a');
-		assert_eq!(queue.pop(), 'b');
-		assert!(queue.is_empty());
+		assert_eq!(queue.borrow_mut().pop_front(), Some('a'));
+		assert_eq!(queue.borrow_mut().pop_front(), Some('b'));
+		assert!(queue.borrow().is_empty());
 
 		let _runner = runner.poll();
 
-		assert_eq!(queue.pop(), 'a');
-		assert_eq!(queue.pop(), 'b');
-		assert!(queue.is_empty());
+		assert_eq!(queue.borrow_mut().pop_front(), Some('a'));
+		assert_eq!(queue.borrow_mut().pop_front(), Some('b'));
+		assert!(queue.borrow().is_empty());
 	}
 }
