@@ -34,6 +34,8 @@ mod tests {
 	use crate::plugins::TallyPlugin;
 	use crate::time::MockTime;
 	use core::time::Duration;
+	use std::cell::RefCell;
+	use std::rc::Rc;
 
 	const POLL_FREQUENCY: Duration = Duration::from_millis(100);
 
@@ -73,21 +75,26 @@ mod tests {
 	}
 
 	#[test]
-	fn test_multiple_plugins_independent() {
-		let tally_a = TallyPlugin::new();
-		let tally_b = TallyPlugin::new();
-		let held_a = tally_a.shallow_clone();
-		let held_b = tally_b.shallow_clone();
+	fn test_poll_order() {
+		let queue: Rc<RefCell<Vec<char>>> = vec![].into();
+		let enqueue_a: EnqueuePlugin<char> = EnqueuePlugin::new(queue.clone(), 'a');
+		let enqueue_b: EnqueuePlugin<char> = EnqueuePlugin::new(queue.clone(), 'a');
 
 		let runner = PluginRunner {
-			plugins: vec![Box::new(tally_a), Box::new(tally_b)],
+			plugins: vec![Box::new(enqueue_a), Box::new(enqueue_b)],
 			time: MockTime::default(),
 			poll_frequency: POLL_FREQUENCY,
 		};
 
+		let runner = runner.poll();
+		assert_eq!(queue.pop(), 'a');
+		assert_eq!(queue.pop(), 'b');
+		assert!(queue.is_empty());
+
 		let _runner = runner.poll();
 
-		assert_eq!(held_a.get_poll_count(), 1);
-		assert_eq!(held_b.get_poll_count(), 1);
+		assert_eq!(queue.pop(), 'a');
+		assert_eq!(queue.pop(), 'b');
+		assert!(queue.is_empty());
 	}
 }
