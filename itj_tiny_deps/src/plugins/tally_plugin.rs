@@ -3,23 +3,20 @@ use core::cell::RefCell;
 use core::fmt::Debug;
 use std::rc::Rc;
 
-impl Default for MockPlugin {
+impl Default for TallyPlugin {
 	fn default() -> Self {
 		Self::new()
 	}
 }
 
 /// A minimal `Plugin` implementation that tracks how many times `poll()` has been called.
-///
-/// Mirrors the `MockTime` pattern: `Rc<RefCell<...>>` + `shallow_clone()` gives
-/// test code a "spy handle" to assert on after `PluginRunner::poll()` runs.
 #[derive(Debug)]
-pub struct MockPlugin {
+pub struct TallyPlugin {
 	data: Rc<RefCell<usize>>,
 }
 
-impl MockPlugin {
-	/// Create a fresh mock plugin with `poll_count` = 0.
+impl TallyPlugin {
+	/// Create a fresh tally plugin with `poll_count` = 0.
 	pub fn new() -> Self {
 		Self {
 			data: Rc::new(RefCell::new(0)),
@@ -42,10 +39,10 @@ impl MockPlugin {
 	}
 }
 
-impl Plugin for MockPlugin {
+impl Plugin for TallyPlugin {
 	fn poll(self: Box<Self>) -> Box<dyn Plugin> {
 		*self.data.borrow_mut() += 1;
-		Box::new(MockPlugin {
+		Box::new(TallyPlugin {
 			data: self.data.clone(),
 		})
 	}
@@ -60,34 +57,34 @@ mod tests {
 
 	#[test]
 	fn test_poll_count_increments_once() {
-		let mock = MockPlugin::new();
-		let held = mock.shallow_clone();
-		assert_eq!(mock.get_poll_count(), 0);
+		let tally = TallyPlugin::new();
+		let held = tally.shallow_clone();
+		assert_eq!(tally.get_poll_count(), 0);
 
-		let _ = Box::new(mock).poll();
+		let _ = Box::new(tally).poll();
 		assert_eq!(held.get_poll_count(), 1);
 	}
 
 	#[test]
 	fn test_clone_shares_count() {
-		let mock = MockPlugin::new();
-		let clone = mock.shallow_clone();
+		let tally = TallyPlugin::new();
+		let clone = tally.shallow_clone();
 
-		assert_eq!(mock.get_poll_count(), 0);
+		assert_eq!(tally.get_poll_count(), 0);
 		assert_eq!(clone.get_poll_count(), 0);
 
-		let _ = Box::new(mock).poll();
+		let _ = Box::new(tally).poll();
 
 		assert_eq!(clone.get_poll_count(), 1);
 	}
 
 	#[test]
 	fn test_plugin_runner_polls_once() {
-		let mock = MockPlugin::new();
-		let held = mock.shallow_clone();
+		let tally = TallyPlugin::new();
+		let held = tally.shallow_clone();
 
 		let runner = PluginRunner {
-			plugins: vec![Box::new(mock)],
+			plugins: vec![Box::new(tally)],
 			time: MockTime::default(),
 			poll_frequency: Duration::from_millis(100),
 		};
@@ -100,11 +97,11 @@ mod tests {
 
 	#[test]
 	fn test_plugin_runner_polls_twice() {
-		let mock = MockPlugin::new();
-		let held = mock.shallow_clone();
+		let tally = TallyPlugin::new();
+		let held = tally.shallow_clone();
 
 		let runner = PluginRunner {
-			plugins: vec![Box::new(mock)],
+			plugins: vec![Box::new(tally)],
 			time: MockTime::default(),
 			poll_frequency: Duration::ZERO,
 		};
@@ -117,13 +114,13 @@ mod tests {
 
 	#[test]
 	fn test_multiple_plugins_independent() {
-		let mock_a = MockPlugin::new();
-		let mock_b = MockPlugin::new();
-		let held_a = mock_a.shallow_clone();
-		let held_b = mock_b.shallow_clone();
+		let tally_a = TallyPlugin::new();
+		let tally_b = TallyPlugin::new();
+		let held_a = tally_a.shallow_clone();
+		let held_b = tally_b.shallow_clone();
 
 		let runner = PluginRunner {
-			plugins: vec![Box::new(mock_a), Box::new(mock_b)],
+			plugins: vec![Box::new(tally_a), Box::new(tally_b)],
 			time: MockTime::default(),
 			poll_frequency: Duration::ZERO,
 		};
