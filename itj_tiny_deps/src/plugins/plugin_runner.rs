@@ -78,7 +78,7 @@ mod tests {
 	fn test_poll_order() {
 		let queue: Rc<RefCell<Vec<char>>> = vec![].into();
 		let enqueue_a: EnqueuePlugin<char> = EnqueuePlugin::new(queue.clone(), 'a');
-		let enqueue_b: EnqueuePlugin<char> = EnqueuePlugin::new(queue.clone(), 'a');
+		let enqueue_b: EnqueuePlugin<char> = EnqueuePlugin::new(queue.clone(), 'b');
 
 		let runner = PluginRunner {
 			plugins: vec![Box::new(enqueue_a), Box::new(enqueue_b)],
