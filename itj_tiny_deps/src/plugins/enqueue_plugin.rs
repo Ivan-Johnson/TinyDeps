@@ -21,9 +21,6 @@ impl<T: Debug + Clone> EnqueuePlugin<T> {
 impl<T: Debug + Clone + 'static> Plugin for EnqueuePlugin<T> {
 	fn poll(self: Box<Self>) -> Box<dyn Plugin> {
 		self.queue.borrow_mut().push_back(self.value.clone());
-		Box::new(EnqueuePlugin {
-			queue: self.queue.clone(),
-			value: self.value,
-		})
+		self
 	}
 }
