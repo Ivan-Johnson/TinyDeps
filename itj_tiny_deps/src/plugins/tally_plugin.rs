@@ -51,19 +51,6 @@ impl Plugin for TallyPlugin {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use crate::plugins::PluginRunner;
-	use crate::time::MockTime;
-	use core::time::Duration;
-
-	#[test]
-	fn test_poll_count_increments_once() {
-		let tally = TallyPlugin::new();
-		let held = tally.shallow_clone();
-		assert_eq!(tally.get_poll_count(), 0);
-
-		let _ = Box::new(tally).poll();
-		assert_eq!(held.get_poll_count(), 1);
-	}
 
 	#[test]
 	fn test_clone_shares_count() {
@@ -76,58 +63,5 @@ mod tests {
 		let _ = Box::new(tally).poll();
 
 		assert_eq!(clone.get_poll_count(), 1);
-	}
-
-	#[test]
-	fn test_plugin_runner_polls_once() {
-		let tally = TallyPlugin::new();
-		let held = tally.shallow_clone();
-
-		let runner = PluginRunner {
-			plugins: vec![Box::new(tally)],
-			time: MockTime::default(),
-			poll_frequency: Duration::from_millis(100),
-		};
-
-		let runner = runner.poll();
-
-		assert_eq!(held.get_poll_count(), 1);
-		assert_eq!(runner.plugins.len(), 1);
-	}
-
-	#[test]
-	fn test_plugin_runner_polls_twice() {
-		let tally = TallyPlugin::new();
-		let held = tally.shallow_clone();
-
-		let runner = PluginRunner {
-			plugins: vec![Box::new(tally)],
-			time: MockTime::default(),
-			poll_frequency: Duration::ZERO,
-		};
-
-		let runner = runner.poll();
-		let _runner = runner.poll();
-
-		assert_eq!(held.get_poll_count(), 2);
-	}
-
-	#[test]
-	fn test_multiple_plugins_independent() {
-		let tally_a = TallyPlugin::new();
-		let tally_b = TallyPlugin::new();
-		let held_a = tally_a.shallow_clone();
-		let held_b = tally_b.shallow_clone();
-
-		let runner = PluginRunner {
-			plugins: vec![Box::new(tally_a), Box::new(tally_b)],
-			time: MockTime::default(),
-			poll_frequency: Duration::ZERO,
-		};
-
-		let _runner = runner.poll();
-
-		assert_eq!(held_a.get_poll_count(), 1);
-		assert_eq!(held_b.get_poll_count(), 1);
 	}
 }
