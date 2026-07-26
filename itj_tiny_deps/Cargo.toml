@@ -7,6 +7,7 @@ edition = "2021"
 boxed_array = []
 command = []
 http = ["time"]
+plugin_framework = ["time"]
 ipc = ["time"]
 ipc_linux = ["ipc", "dep:libc"]
 ipc_linux_fd_connection = ["ipc_linux"]

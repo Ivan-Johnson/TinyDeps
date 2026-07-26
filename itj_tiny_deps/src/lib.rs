@@ -13,6 +13,8 @@ pub mod ipc;
 pub mod join_handle_join_on_drop;
 #[cfg(feature = "notification")]
 pub mod notification;
+#[cfg(feature = "plugin_framework")]
+pub mod plugins;
 #[cfg(feature = "random")]
 pub mod random;
 #[cfg(feature = "time")]
