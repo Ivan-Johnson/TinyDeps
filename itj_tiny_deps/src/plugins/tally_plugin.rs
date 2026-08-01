@@ -4,22 +4,14 @@ use core::fmt::Debug;
 use core::time::Duration;
 use std::rc::Rc;
 
-impl Default for TallyPlugin {
-	fn default() -> Self {
-		Self::new(Duration::ZERO)
-	}
-}
-
 /// A minimal `Plugin` implementation that tracks how many times `poll()` has been called.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct TallyPlugin {
 	data: Rc<RefCell<usize>>,
 	cooldown: Duration,
 }
 
 impl TallyPlugin {
-	/// Create a fresh tally plugin with `poll_count` = 0.
-	#[must_use]
 	pub fn new(cooldown: Duration) -> Self {
 		Self {
 			data: Rc::new(RefCell::new(0)),
@@ -59,7 +51,7 @@ mod tests {
 
 	#[test]
 	fn test_clone_shares_count() {
-		let tally = TallyPlugin::new(Duration::ZERO);
+		let tally = TallyPlugin::default();
 		let clone = tally.shallow_clone();
 
 		assert_eq!(tally.get_poll_count(), 0);
