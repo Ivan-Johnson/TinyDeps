@@ -131,7 +131,7 @@ mod tests {
 		drop(srv);
 
 		// This should fail because the server is not running
-		new_inet_client(port);
+		let _ = new_inet_client(port);
 	}
 
 	#[test]
