@@ -176,11 +176,47 @@ mod tests {
 		assert_eq!(data, response);
 	}
 
+	#[test]
+	fn test_two_clients_same_server() {
+		let mut server = InetServer::default();
+		let port = server.get_port();
+		std::thread::sleep(Duration::from_millis(200));
+
+		// Both clients connect to the same server port
+		let mut client_a = new_inet_client(port);
+		let mut server_a = server.poll_connection().unwrap();
+
+		let mut client_b = new_inet_client(port);
+		let mut server_b = server.poll_connection().unwrap();
+
+		// Client A sends to server
+		let msg_a: Vec<u8> = vec![1, 2, 3];
+		client_a.send(&msg_a).unwrap();
+		let received = server_a.read().unwrap();
+		assert_eq!(msg_a, received);
+
+		// Client B sends to server independently
+		let msg_b: Vec<u8> = vec![4, 5, 6];
+		client_b.send(&msg_b).unwrap();
+		let received = server_b.read().unwrap();
+		assert_eq!(msg_b, received);
+
+		// Server A replies back to client A
+		let reply_a: Vec<u8> = vec![7, 8, 9];
+		server_a.send(&reply_a).unwrap();
+		let received = client_a.read().unwrap();
+		assert_eq!(reply_a, received);
+
+		// Server B replies back to client B
+		let reply_b: Vec<u8> = vec![10, 11, 12];
+		server_b.send(&reply_b).unwrap();
+		let received = client_b.read().unwrap();
+		assert_eq!(reply_b, received);
+	}
+
 	// TODO: write more tests
 	//
 	// ideas:
-	// * two clients talking to the same server
 	// * drop client connection, then server connection
 	// * drop server connection, then client connection
-	// *
 }
