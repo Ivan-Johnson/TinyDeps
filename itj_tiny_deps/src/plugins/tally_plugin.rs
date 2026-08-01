@@ -47,10 +47,9 @@ impl TallyPlugin {
 }
 
 impl Plugin for TallyPlugin {
-	fn poll(self: Box<Self>) -> (Box<dyn Plugin>, Duration) {
+	fn poll(self: Box<Self>) -> (Duration, Box<dyn Plugin>) {
 		*self.data.borrow_mut() += 1;
-		let ret_val = self.cooldown;
-		(self, ret_val)
+		(self.cooldown, self)
 	}
 }
 

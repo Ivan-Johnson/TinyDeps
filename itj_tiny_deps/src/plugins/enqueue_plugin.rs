@@ -25,11 +25,10 @@ impl<T: Debug + Clone> EnqueuePlugin<T> {
 }
 
 impl<T: Debug + Clone + 'static> Plugin for EnqueuePlugin<T> {
-	fn poll(self: Box<Self>) -> (Box<dyn Plugin>, Duration) {
+	fn poll(self: Box<Self>) -> (Duration, Box<dyn Plugin>) {
 		self.queue.borrow_mut().push_back(self.value.clone());
 
-		let cooldown = self.cooldown;
-		(self, cooldown)
+		(self.cooldown, self)
 	}
 }
 
@@ -42,7 +41,7 @@ mod tests {
 		let queue: Rc<RefCell<VecDeque<char>>> = Rc::new(RefCell::new(VecDeque::new()));
 		let plugin = EnqueuePlugin::new(queue.clone(), 'x', Duration::ZERO);
 
-		let (_plugin, cooldown) = Box::new(plugin).poll();
+		let (cooldown, _plugin) = Box::new(plugin).poll();
 		assert_eq!(cooldown, Duration::ZERO);
 		assert_eq!(queue.borrow_mut().pop_front(), Some('x'));
 	}

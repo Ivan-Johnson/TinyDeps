@@ -51,7 +51,7 @@ impl<T: Time> PluginRunner<T> {
 				continue;
 			}
 
-			let (plugin, cooldown) = entry.plugin.poll();
+			let (cooldown, plugin) = entry.plugin.poll();
 			let deadline = self.time.now_instant() + cooldown;
 			next = std::cmp::min(next, deadline);
 			self.entries.push(PluginEntry { plugin, deadline });
