@@ -41,7 +41,7 @@
 			};
 		in
 		{
-			devShells.${pkgs.system}.default = pkgs.mkShell {
+			devShells.${pkgs.stdenv.hostPlatform.system}.default = pkgs.mkShell {
 				buildInputs = [
 					pkgs.cargo
 					pkgs.cargo-flamegraph
@@ -52,7 +52,7 @@
 				];
 			};
 
-			packages.${pkgs.system}.default = itj_daemon_hello_world;
+			packages.${pkgs.stdenv.hostPlatform.system}.default = itj_daemon_hello_world;
 
 			nixos_options =
 				{
