@@ -24,6 +24,7 @@ pub struct MockNotification {
 }
 
 impl MockNotification {
+	#[must_use]
 	pub fn new() -> Self {
 		Self::default()
 	}
@@ -38,7 +39,7 @@ impl MockNotification {
 	}
 
 	fn expect(&mut self, data: MockNotificationCall) {
-		self.data.borrow_mut().calls.push_back(data)
+		self.data.borrow_mut().calls.push_back(data);
 	}
 
 	pub fn expect_exact(&mut self, title: String, body: String) {
@@ -46,7 +47,7 @@ impl MockNotification {
 			title: Some(title),
 			body: Some(body),
 			should_ret_err: false,
-		})
+		});
 	}
 
 	pub fn expect_any(&mut self) {
@@ -54,7 +55,7 @@ impl MockNotification {
 			title: None,
 			body: None,
 			should_ret_err: false,
-		})
+		});
 	}
 
 	pub fn expect_any_ret_err(&mut self) {
@@ -62,7 +63,7 @@ impl MockNotification {
 			title: None,
 			body: None,
 			should_ret_err: true,
-		})
+		});
 	}
 }
 
@@ -75,7 +76,7 @@ impl Drop for MockNotification {
 impl Notification for MockNotification {
 	fn send(&self, title: &str, body: &str) -> Result<(), ErrorSmart> {
 		let data: &mut MockNotificationData = &mut self.data.borrow_mut();
-		println!("NOTIFICATION: {:?}, {:?}", title, body);
+		println!("NOTIFICATION: {title:?}, {body:?}");
 		let expected_val = data
 			.calls
 			.pop_front()

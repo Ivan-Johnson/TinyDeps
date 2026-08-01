@@ -49,9 +49,9 @@ enum SubcommandCLI {
 impl SubcommandCLI {
 	pub fn main(self) -> ! {
 		match self {
-			SubcommandCLI::StartDaemon(conf) => conf.main(),
-			SubcommandCLI::Greet(conf) => conf.main(),
-			SubcommandCLI::SetServerName(conf) => conf.main(),
+			Self::StartDaemon(conf) => conf.main(),
+			Self::Greet(conf) => conf.main(),
+			Self::SetServerName(conf) => conf.main(),
 		}
 	}
 }
@@ -117,6 +117,7 @@ impl StartDaemonConfig {
 	}
 }
 
+#[must_use]
 pub fn parse_args() -> MyParsedArgs {
 	let args: MyParsedArgs = argh::from_env();
 	args

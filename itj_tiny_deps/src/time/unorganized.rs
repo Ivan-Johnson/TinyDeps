@@ -20,17 +20,20 @@ pub const DURATION_TROPICAL_YEAR: Duration = Duration::from_secs(SECONDS_PER_TRO
 
 /// The standard library's "duration" type doesn't support negative durations,
 /// so we are left to implement basic addition functions ourselves -_-
+#[must_use]
 pub fn duration_add_i64_secs(dur: Duration, secs: i64) -> Duration {
 	if secs >= 0 {
 		dur + Duration::from_secs(secs as u64)
 	} else {
-		dur - Duration::from_secs((-secs) as u64)
+		dur.checked_sub(Duration::from_secs((-secs) as u64))
+			.unwrap()
 	}
 }
 
 // I make no guarentees about the format of this string.
 //
 // This function is purely for adding a timestamp to logs or some such.
+#[must_use]
 pub fn get_date_as_string() -> String {
 	let mut cmd = Command::new("date");
 	let output = cmd.arg("--iso-8601=seconds").output().unwrap().stdout;
@@ -38,7 +41,8 @@ pub fn get_date_as_string() -> String {
 	str[0..str.len() - 1].to_string()
 }
 
-pub fn round_duration_down(duration: Duration, multiple: u64) -> Duration {
+#[must_use]
+pub const fn round_duration_down(duration: Duration, multiple: u64) -> Duration {
 	let secs = duration.as_secs();
 
 	let remainder = secs % multiple;
@@ -46,7 +50,8 @@ pub fn round_duration_down(duration: Duration, multiple: u64) -> Duration {
 	Duration::from_secs(secs - remainder)
 }
 
-pub fn round_duration_up(duration: Duration, multiple: u64) -> Duration {
+#[must_use]
+pub const fn round_duration_up(duration: Duration, multiple: u64) -> Duration {
 	let secs = duration.as_secs();
 
 	let remainder = secs % multiple;
@@ -74,6 +79,7 @@ pub fn duration_from_str(dur_str: &str) -> Result<Duration, ErrorSmart> {
 }
 
 /// Pretty-print a duration. Round the value to make the string shorter.
+#[must_use]
 pub fn round_and_format_duration(dur: Duration) -> String {
 	let dur_s: u32 = dur.as_secs().try_into().unwrap();
 	if dur_s < 120 {

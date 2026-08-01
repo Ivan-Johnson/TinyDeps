@@ -33,21 +33,20 @@ pub struct MockHttpController {
 }
 
 impl MockHttpController {
-	pub fn get_mock_time(&self) -> &MockTime {
+	#[must_use]
+	pub const fn get_mock_time(&self) -> &MockTime {
 		&self.time
 	}
 
+	#[must_use]
 	pub fn get_expected_time_of_most_recent_expected_fn_call(&self) -> Option<Instant> {
 		let data = self.data.borrow();
 		let data = data.front()?;
 		Some(data.t_expected)
 	}
 
-	pub fn add_expected_fn_call(
-		self,
-		url: String,
-		result: Result<HttpGetResponse, ErrorSmart>,
-	) -> MockHttpController {
+	#[must_use]
+	pub fn add_expected_fn_call(self, url: String, result: Result<HttpGetResponse, ErrorSmart>) -> Self {
 		let current_time = self.time.now_instant();
 		let t_expected = self
 			.get_expected_time_of_most_recent_expected_fn_call()
@@ -55,21 +54,23 @@ impl MockHttpController {
 		self.add_timed_expected_fn_call(t_expected, url, result)
 	}
 
+	#[must_use]
 	pub fn add_timed_expected_fn_call(
 		self,
 		t_expected: Instant,
 		url: String,
 		result: Result<HttpGetResponse, ErrorSmart>,
-	) -> MockHttpController {
+	) -> Self {
 		let data = MockHttpDataPoint {
 			url,
-			result,
 			t_expected,
+			result,
 		};
 		self.data.borrow_mut().push_back(data);
 		self
 	}
 
+	#[must_use]
 	pub fn to_impl(self) -> MockHttp {
 		MockHttp {
 			data: self.data.clone(),

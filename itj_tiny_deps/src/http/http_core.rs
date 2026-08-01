@@ -1,13 +1,13 @@
 use crate::errors::ErrorSmart;
 use std::fmt::Debug;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct HttpHeader {
 	pub name: String,
 	pub value: String,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct HttpGetResponse {
 	pub body: String,
 	#[allow(unused)] // TODO
@@ -20,6 +20,7 @@ pub trait Http: Debug {
 	fn get(&self, url: &str) -> Result<HttpGetResponse, ErrorSmart>;
 }
 
+#[must_use]
 pub fn get_header_value<'a>(headers: &'a Vec<HttpHeader>, header_name: &str) -> Option<&'a str> {
 	for header in headers {
 		if header.name == header_name {

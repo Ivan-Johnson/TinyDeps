@@ -19,6 +19,7 @@ pub struct TallyPlugin {
 
 impl TallyPlugin {
 	/// Create a fresh tally plugin with `poll_count` = 0.
+	#[must_use]
 	pub fn new(cooldown: Duration) -> Self {
 		Self {
 			data: Rc::new(RefCell::new(0)),
@@ -27,6 +28,7 @@ impl TallyPlugin {
 	}
 
 	/// Return the number of times `poll()` has been called across all clones.
+	#[must_use]
 	pub fn get_poll_count(&self) -> usize {
 		*self.data.borrow()
 	}
@@ -35,6 +37,7 @@ impl TallyPlugin {
 	///
 	/// Call `get_poll_count()` on the clone to read counters updated
 	/// when the original (or any other clone) is polled.
+	#[must_use]
 	pub fn shallow_clone(&self) -> Self {
 		Self {
 			data: self.data.clone(),

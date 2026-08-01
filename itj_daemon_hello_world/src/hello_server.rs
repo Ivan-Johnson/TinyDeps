@@ -15,9 +15,7 @@ pub struct HelloServer {
 
 impl HelloServer {
 	pub fn new(port: TcpPort) -> Self {
-		let server_name = env::var("ITJ_DAEMON_HELLO_WORLD_DEFAULT_SERVER_NAME")
-			.unwrap()
-			.to_string();
+		let server_name = env::var("ITJ_DAEMON_HELLO_WORLD_DEFAULT_SERVER_NAME").unwrap();
 		let server = InetServer::new(port);
 		Self {
 			server_name,
@@ -30,12 +28,12 @@ impl HelloServer {
 		match msg {
 			HelloWorldMessage::Greet(name) => {
 				let response = format!("Hello {name}, I am {}!", self.server_name);
-				println!("{}", response);
+				println!("{response}");
 				HelloWorldMessage::GreetingResponse(response)
 			}
 			HelloWorldMessage::SetServerName(name) => {
 				println!("Changing server name from {} to {}", self.server_name, name);
-				self.server_name = name.to_string();
+				self.server_name = name.clone();
 				HelloWorldMessage::Ack
 			}
 			&HelloWorldMessage::GreetingResponse(_) | &HelloWorldMessage::Ack => {
@@ -57,11 +55,11 @@ impl HelloServer {
 			let connection = self.server.poll_connection();
 			if connection.is_none() {
 				continue;
-			};
+			}
 			let mut connection = MessageConnection::new(connection.unwrap());
 			loop {
 				let result = connection.read_message();
-				if let Ok(None) = result {
+				if matches!(result, Ok(None)) {
 					println!("Connection closed");
 					break;
 				}

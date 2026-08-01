@@ -6,7 +6,8 @@ use crate::notification::Notification;
 pub struct NotifySend;
 
 impl NotifySend {
-	pub fn new() -> Self {
+	#[must_use]
+	pub const fn new() -> Self {
 		Self
 	}
 }

@@ -1,6 +1,6 @@
 use itj_tiny_deps::ipc::Message;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum HelloWorldMessage {
 	Greet(String),
 	SetServerName(String),
@@ -11,10 +11,10 @@ pub enum HelloWorldMessage {
 impl Message for HelloWorldMessage {
 	fn serialize(&self) -> Vec<u8> {
 		let (msg_type, str_val): (u8, String) = match self {
-			HelloWorldMessage::Greet(str_val) => (0, str_val.clone()),
-			HelloWorldMessage::SetServerName(str_val) => (1, str_val.clone()),
-			HelloWorldMessage::GreetingResponse(str_val) => (2, str_val.clone()),
-			HelloWorldMessage::Ack => (3, "".to_string()),
+			Self::Greet(str_val) => (0, str_val.clone()),
+			Self::SetServerName(str_val) => (1, str_val.clone()),
+			Self::GreetingResponse(str_val) => (2, str_val.clone()),
+			Self::Ack => (3, String::new()),
 		};
 
 		let mut final_msg: Vec<u8> = Vec::new();
@@ -29,10 +29,10 @@ impl Message for HelloWorldMessage {
 			.expect("Could not parse message data: {msg}")
 			.to_string();
 		match msg_type {
-			0 => HelloWorldMessage::Greet(msg_str),
-			1 => HelloWorldMessage::SetServerName(msg_str),
-			2 => HelloWorldMessage::GreetingResponse(msg_str),
-			3 => HelloWorldMessage::Ack,
+			0 => Self::Greet(msg_str),
+			1 => Self::SetServerName(msg_str),
+			2 => Self::GreetingResponse(msg_str),
+			3 => Self::Ack,
 			4_u8..=u8::MAX => panic!(),
 		}
 	}

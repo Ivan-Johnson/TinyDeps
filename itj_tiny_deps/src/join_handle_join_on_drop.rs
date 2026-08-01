@@ -5,7 +5,8 @@ pub struct JoinHandleJoinOnDrop<T> {
 }
 
 impl<T> JoinHandleJoinOnDrop<T> {
-	pub fn new(worker: JoinHandle<T>) -> Self {
+	#[must_use]
+	pub const fn new(worker: JoinHandle<T>) -> Self {
 		Self {
 			worker: Some(worker),
 		}

@@ -56,6 +56,7 @@ impl MockTime {
 	/// still useful so that an integration test can advance time in between
 	/// successive function calls.
 	#[allow(unused)]
+	#[must_use]
 	pub fn shallow_clone(&self) -> Self {
 		Self {
 			data: self.data.clone(),
@@ -70,7 +71,7 @@ mod tests {
 	const MAX_ERROR_MOCK: Duration = Duration::from_nanos(0);
 	/// 2025-01-29: I've consistently been seeing errors of ~1.1us, and am
 	/// therefore increasing max error from 1us to 10us
-	const MAX_ERROR_REAL: Duration = Duration::from_nanos(10_000);
+	const MAX_ERROR_REAL: Duration = Duration::from_micros(10);
 	const SLEEP_DURATION: Duration = Duration::from_secs(100);
 
 	#[test]
@@ -92,7 +93,7 @@ mod tests {
 		let stop_instant = time.now_instant();
 
 		// Validate results
-		let delta_d = stop_dur - start_dur;
+		let delta_d = stop_dur.checked_sub(start_dur).unwrap();
 		println!("delta_d={delta_d:?}");
 		assert!(SLEEP_DURATION.abs_diff(delta_d) <= MAX_ERROR_MOCK);
 		let delta_i = stop_instant - start_instant;

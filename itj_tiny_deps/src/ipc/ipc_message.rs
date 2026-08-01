@@ -13,7 +13,7 @@ pub struct MessageConnection<TMsg: Message, TConnection: Connection> {
 }
 
 impl<TMsg: Message, TConnection: Connection> MessageConnection<TMsg, TConnection> {
-	pub fn new(connection: TConnection) -> Self {
+	pub const fn new(connection: TConnection) -> Self {
 		Self {
 			ipc: connection,
 			_phantom_msg: PhantomData {},

@@ -34,6 +34,7 @@ impl Drop for InetServer {
 }
 
 impl InetServer {
+	#[must_use]
 	pub fn new(port: TcpPort) -> Self {
 		// 1. Trivially create the socket
 		let fd = unsafe { socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, IPPROTO_TCP) };
@@ -52,8 +53,8 @@ impl InetServer {
 		//
 		//    For `AF_INET`, we use `sockaddr_in`: https://man.archlinux.org/man/ip.7.en#Address_format
 		let addr_size: socklen_t = std::mem::size_of::<sockaddr_in>().try_into().unwrap();
-		let addr = new_sockaddr_in(Ipv4Addr::new(127, 0, 0, 1), port);
-		let addr_ptr = &addr as *const sockaddr_in as *const libc::sockaddr;
+		let addr = new_sockaddr_in(Ipv4Addr::LOCALHOST, port);
+		let addr_ptr = (&raw const addr).cast::<libc::sockaddr>();
 
 		let ret_bind = unsafe { bind(fd, addr_ptr, addr_size) };
 		let err = Error::last_os_error();
@@ -69,13 +70,14 @@ impl InetServer {
 		Self { fd }
 	}
 
+	#[must_use]
 	pub fn get_port(&self) -> TcpPort {
 		let size_const: socklen_t = std::mem::size_of::<sockaddr_in>().try_into().unwrap();
 		let mut size_mut: socklen_t = size_const;
-		let size_mut_ptr = &mut size_mut as *mut socklen_t;
+		let size_mut_ptr = &raw mut size_mut;
 
-		let mut addr = new_sockaddr_in(Ipv4Addr::new(0, 0, 0, 0), 0);
-		let addr_ptr = &mut addr as *mut sockaddr_in as *mut libc::sockaddr;
+		let mut addr = new_sockaddr_in(Ipv4Addr::UNSPECIFIED, 0);
+		let addr_ptr = (&raw mut addr).cast::<libc::sockaddr>();
 
 		let ret_get = unsafe { getsockname(self.fd, addr_ptr, size_mut_ptr) };
 		assert_eq!(0, ret_get);

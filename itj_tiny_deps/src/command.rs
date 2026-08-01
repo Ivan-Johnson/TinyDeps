@@ -4,6 +4,7 @@ use std::process::Command;
 use std::process::ExitStatus;
 use std::process::Output;
 
+#[must_use]
 pub fn run_cmd_async(args: &[&str]) -> Child {
 	assert!(!args.is_empty());
 	let mut cmd = Command::new(args[0]);
@@ -11,6 +12,7 @@ pub fn run_cmd_async(args: &[&str]) -> Child {
 	cmd.spawn().expect("ERROR: could not launch {cmd}")
 }
 
+#[must_use]
 pub fn run_cmd_async_vec(args: Vec<String>) -> Child {
 	// yuck.
 	let args: Vec<&str> = args.iter().map(|string| &**string).collect();

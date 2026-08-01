@@ -6,14 +6,14 @@ use libc::sockaddr_in;
 use libc::AF_INET;
 use std::net::Ipv4Addr;
 
-pub fn in_addr_from_ipv4addr(addr: Ipv4Addr) -> libc::in_addr {
+pub const fn in_addr_from_ipv4addr(addr: Ipv4Addr) -> libc::in_addr {
 	let addr: u32 /* host endianness */ = addr.to_bits();
 	let addr: u32 /* ipv4 endianness */ = network_u32_from_host(addr);
 	libc::in_addr { s_addr: addr }
 }
 
 #[allow(dead_code)]
-pub fn ipv4addr_from_in_addr(addr: libc::in_addr) -> Ipv4Addr {
+pub const fn ipv4addr_from_in_addr(addr: libc::in_addr) -> Ipv4Addr {
 	let addr: u32 /* ipv4 endianness */ = addr.s_addr;
 	let addr_native: u32 = host_u32_from_network(addr);
 	Ipv4Addr::from_bits(addr_native)

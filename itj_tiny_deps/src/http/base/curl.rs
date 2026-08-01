@@ -10,6 +10,7 @@ pub struct Curl {
 }
 
 impl Curl {
+	#[must_use]
 	pub fn new(user_agent: &str) -> Self {
 		Self {
 			user_agent: user_agent.to_string(),
@@ -48,7 +49,7 @@ impl Http for Curl {
 			.lines()
 			.skip(1) // First line isn't a header (e.g. `HTTP/2 200`)
 			.map(|header| {
-				let index = header.find(":").unwrap();
+				let index = header.find(':').unwrap();
 				HttpHeader {
 					name: header[..index].to_string(),
 					// `+2` skips the `: `.

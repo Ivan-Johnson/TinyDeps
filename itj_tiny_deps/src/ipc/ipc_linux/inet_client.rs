@@ -11,6 +11,7 @@ use libc::SOCK_STREAM;
 use std::io::Error;
 use std::net::Ipv4Addr;
 
+#[must_use]
 pub fn new_inet_client(port: TcpPort) -> FDConnection {
 	// strace nc -N 127.0.0.1 7320
 
@@ -21,8 +22,8 @@ pub fn new_inet_client(port: TcpPort) -> FDConnection {
 
 	// 2. Connect to the server
 	let addr_size: socklen_t = std::mem::size_of::<sockaddr_in>().try_into().unwrap();
-	let addr = new_sockaddr_in(Ipv4Addr::new(127, 0, 0, 1), port);
-	let addr_ptr = &addr as *const sockaddr_in as *const libc::sockaddr;
+	let addr = new_sockaddr_in(Ipv4Addr::LOCALHOST, port);
+	let addr_ptr = (&raw const addr).cast::<libc::sockaddr>();
 
 	let ret_connect = unsafe { connect(fd, addr_ptr, addr_size) };
 	let err = Error::last_os_error();

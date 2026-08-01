@@ -23,17 +23,20 @@ pub struct LeakyBucket<T: Time> {
 
 impl<T: Time> LeakyBucket<T> {
 	fn get_default_threshold(&self) -> Instant {
-		self.time.now_instant() - self.query_delay * (self.bucket_size - 1)
+		self.time
+			.now_instant()
+			.checked_sub(self.query_delay * (self.bucket_size - 1))
+			.unwrap()
 	}
 
 	pub fn new(base_impl: Rc<dyn Http>, time: T, bucket_size: u32, query_delay: Duration) -> Self {
 		let threshold = Cell::new(time.now_instant());
 
-		let obj = LeakyBucket {
-			time,
+		let obj = Self {
 			base_impl,
 			bucket_size,
 			query_delay,
+			time,
 			threshold,
 		};
 
@@ -101,7 +104,7 @@ mod tests {
 			t_enqueue: _,
 			t_dequeue,
 			success,
-		} in operations.iter()
+		} in &operations
 		{
 			let expected_response = if *success {
 				expected_ok.clone()
@@ -117,7 +120,7 @@ mod tests {
 		let http_mock = Rc::new(http_controller.to_impl());
 
 		let bucket = LeakyBucket::new(
-			http_mock.clone(),
+			http_mock,
 			time_mock.shallow_clone(),
 			args.bucket_size,
 			args.query_delay,
@@ -127,7 +130,7 @@ mod tests {
 			t_enqueue,
 			t_dequeue,
 			success,
-		} in operations.iter()
+		} in &operations
 		{
 			let expected_response = if *success {
 				expected_ok.clone()
@@ -254,7 +257,7 @@ mod tests {
 		run_test(args, operations.into_iter());
 	}
 
-	/// Verify that only bucket_size charges are accumulated after a long delay
+	/// Verify that only `bucket_size` charges are accumulated after a long delay
 	#[test]
 	fn test_overcharge() {
 		let args = TestOperationConstructorArgs {

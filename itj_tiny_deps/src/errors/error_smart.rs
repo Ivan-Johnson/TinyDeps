@@ -44,15 +44,16 @@ impl ErrorSmart {
 		))
 	}
 
+	#[must_use]
 	pub fn new_heavy_manual(message: String, file: &'static str, line: u32) -> Self {
-		let mut obj = ErrorSmart { stack: vec![] };
+		let mut obj = Self { stack: vec![] };
 		obj.push_heavy_manual(message, file, line);
 		obj
 	}
 
 	pub fn new_light<T>(message: &'static str) -> Result<T, Self> {
 		let frame = TrackLight { message };
-		Err(ErrorSmart {
+		Err(Self {
 			stack: vec![TracePoint::Light(frame)],
 		})
 	}
@@ -145,7 +146,7 @@ impl Display for ErrorSmart {
 				TracePoint::Light(light) => write!(fmt, "Light({})", light.message).unwrap(),
 				// TODO: add file & line?
 				TracePoint::Heavy(heavy) => write!(fmt, "Heavy({})", heavy.message).unwrap(),
-			};
+			}
 		}
 		write!(fmt, "])").unwrap();
 		Ok(())

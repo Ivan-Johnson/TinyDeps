@@ -15,7 +15,7 @@ pub struct EnqueuePlugin<T: Debug + Clone> {
 
 impl<T: Debug + Clone> EnqueuePlugin<T> {
 	/// Create a new enqueue plugin that pushes `value` into `queue` on each poll.
-	pub fn new(queue: Rc<RefCell<VecDeque<T>>>, value: T, cooldown: Duration) -> Self {
+	pub const fn new(queue: Rc<RefCell<VecDeque<T>>>, value: T, cooldown: Duration) -> Self {
 		Self {
 			queue,
 			value,
@@ -28,7 +28,7 @@ impl<T: Debug + Clone + 'static> Plugin for EnqueuePlugin<T> {
 	fn poll(self: Box<Self>) -> (Box<dyn Plugin>, Duration) {
 		self.queue.borrow_mut().push_back(self.value.clone());
 		(
-			Box::new(EnqueuePlugin {
+			Box::new(Self {
 				queue: self.queue.clone(),
 				value: self.value,
 				cooldown: self.cooldown,

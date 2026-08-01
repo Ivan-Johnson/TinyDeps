@@ -5,7 +5,7 @@ pub struct ChildKillOnDrop {
 }
 
 impl ChildKillOnDrop {
-	pub fn new(child: Child) -> Self {
+	pub const fn new(child: Child) -> Self {
 		Self { child }
 	}
 }
