@@ -9,7 +9,10 @@ pub fn run_cmd_async(args: &[&str]) -> Child {
 	assert!(!args.is_empty());
 	let mut cmd = Command::new(args[0]);
 	cmd.args(&args[1..]);
-	cmd.spawn().expect("ERROR: could not launch {cmd}")
+	match cmd.spawn() {
+		Ok(child) => return child,
+		Err(err) => panic!("ERROR: could not launch {cmd:?} - {err:?}"),
+	}
 }
 
 #[must_use]
