@@ -8,6 +8,8 @@ pub const SECONDS_PER_DAY: u64 = 24 * SECONDS_PER_HOUR;
 // https://web.archive.org/web/20230506125056/https://www.grc.nasa.gov/www/k-12/Numbers/Math/Mathematical_Thinking/calendar_calculations.htm
 pub const SECONDS_PER_TROPICAL_YEAR: u64 = SECONDS_PER_DAY * 365_2422 / 1_0000;
 
+// This value, 86_400, is quite small. It's a lossless conversion.
+#[allow(clippy::as_conversions)]
 pub const SECONDS_PER_DAY_F64: f64 = SECONDS_PER_DAY as f64;
 
 #[allow(dead_code)]
@@ -20,12 +22,14 @@ pub const DURATION_TROPICAL_YEAR: Duration = Duration::from_secs(SECONDS_PER_TRO
 
 /// The standard library's "duration" type doesn't support negative durations,
 /// so we are left to implement basic addition functions ourselves -_-
+///
+/// TODO use `Result`?
 #[must_use]
 pub fn duration_add_i64_secs(dur: Duration, secs: i64) -> Duration {
 	if secs >= 0 {
-		dur + Duration::from_secs(secs as u64)
+		dur + Duration::from_secs(secs.try_into().unwrap())
 	} else {
-		dur.checked_sub(Duration::from_secs((-secs) as u64))
+		dur.checked_sub(Duration::from_secs((-secs).try_into().unwrap()))
 			.unwrap()
 	}
 }

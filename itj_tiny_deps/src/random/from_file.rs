@@ -61,7 +61,11 @@ impl Random for RandomFromFile {
 	fn rand_f64(&mut self, max: f64) -> f64 {
 		const SCALE: i64 = i64::MAX;
 		let result_i64 = self.rand_int(0, SCALE);
+
+		// Lossy conversions are sufficient for my usecases.
+		#[allow(clippy::as_conversions)]
 		let frac = (result_i64 as f64) / (SCALE as f64);
+
 		frac * max
 	}
 }
