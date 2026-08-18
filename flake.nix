@@ -1,7 +1,8 @@
 {
 	description = "Ivan Johnson's Rust Library of random utilities";
 
-	inputs.nixpkgs.url = "nixpkgs/nixos-unstable";
+	inputs.nixpkgs.url = "nixpkgs/nixos-26.05";
+	# inputs.nixpkgs.url = "nixpkgs/nixos-unstable";
 
 	outputs =
 		{ self, nixpkgs }:
