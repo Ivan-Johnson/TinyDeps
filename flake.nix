@@ -50,6 +50,7 @@
 					pkgs.lldb
 					pkgs.rustc
 					pkgs.rustfmt
+					pkgs.nix
 				];
 			};
 
