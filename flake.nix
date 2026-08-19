@@ -38,6 +38,16 @@
 
 				cargoLock.lockFile = ./Cargo.lock;
 
+				# This is necessary for `nix build` to be able to check
+				# the entirety of `itj_tiny_deps` for build failures.
+				#
+				# This is a bit ugly though; `itj_daemon_hello_world` is used for more
+				# than just `packages.${pkgs.stdenv.hostPlatform.system}.default`.
+				#
+				# TODO: _should_ `itj_daemon_hello_world` be used for so many different
+				# things?
+				cargoBuildFlags = [ "--all-features" ];
+
 				postInstall = ''wrapProgram "$out/bin/itj_daemon_hello_world" --suffix PATH : "${pkgs.netcat}/bin"; mv "$out/bin/itj_daemon_hello_world" "$out/bin/hello-world"'';
 			};
 		in
