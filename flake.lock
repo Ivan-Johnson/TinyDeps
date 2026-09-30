@@ -7,11 +7,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1790725826,
-        "narHash": "sha256-ptpZtnLlFytq37c4yngQQH1S6EQ/zmjMGzB9sQVA7NM=",
+        "lastModified": 1790730162,
+        "narHash": "sha256-zdZO5xdg+ebNzNvPN6LRmf4nuiTe/rr6l6qip/bLvNU=",
         "ref": "refs/heads/mainline",
-        "rev": "8db7d13cef9372a51a30622105ba6961980508e1",
-        "revCount": 2719,
+        "rev": "45bc1f955c9e30dfee07d9ec112d47363640531c",
+        "revCount": 2721,
         "type": "git",
         "url": "https://github.com/Ivan-Johnson/DevTools.git"
       },

@@ -65,15 +65,10 @@
                 in
                 {
                         devShells.${pkgs.stdenv.hostPlatform.system}.default = pkgs.mkShell {
-                                inputsFrom = [ itj_dev_tools.devShells.${system}.with-github ];
-                                buildInputs = [
-                                        pkgs.cargo
-                                        pkgs.cargo-flamegraph
-                                        pkgs.clippy
-                                        pkgs.lldb
-                                        pkgs.rustc
-                                        pkgs.rustfmt
-                                        pkgs.nix
+                                inputsFrom = [
+                                        itj_dev_tools.devShells.${system}.default
+                                        itj_dev_tools.devShells.${system}.rust
+                                        itj_dev_tools.devShells.${system}.github-cli
                                 ];
                         };
 
