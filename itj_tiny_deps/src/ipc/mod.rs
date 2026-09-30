@@ -1,6 +1,8 @@
 #[cfg(feature = "ipc_linux")]
 pub mod ipc_linux;
 mod ipc_message;
+#[allow(dead_code)] // Disallow dead code after making this public
+mod mock_ipc;
 mod traits;
 
 pub use ipc_message::Message;
