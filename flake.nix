@@ -1,12 +1,24 @@
 {
         description = "Ivan Johnson's Rust Library of random utilities";
 
-        inputs.nixpkgs.url = "nixpkgs/nixos-26.05";
-        # inputs.nixpkgs.url = "nixpkgs/nixos-unstable";
+        inputs = {
+                nixpkgs.url = "nixpkgs/nixos-26.05";
+                # nixpkgs.url = "nixpkgs/nixos-unstable";
+
+                itj_dev_tools = {
+                        url = "git+https://github.com/Ivan-Johnson/DevTools.git?ref=refs/heads/mainline";
+                        inputs.nixpkgs.follows = "nixpkgs";
+                };
+        };
 
         outputs =
-                { self, nixpkgs }:
+                {
+                        self,
+                        nixpkgs,
+                        itj_dev_tools,
+                }:
                 let
+                        system = "x86_64-linux";
                         pkgs = import nixpkgs { system = "x86_64-linux"; };
                         rustPlatform = pkgs.rustPlatform;
                         itj_daemon_hello_world = rustPlatform.buildRustPackage {
@@ -53,6 +65,7 @@
                 in
                 {
                         devShells.${pkgs.stdenv.hostPlatform.system}.default = pkgs.mkShell {
+                                inputsFrom = [ itj_dev_tools.devShells.${system}.with-github ];
                                 buildInputs = [
                                         pkgs.cargo
                                         pkgs.cargo-flamegraph

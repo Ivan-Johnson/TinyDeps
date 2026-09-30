@@ -1,5 +1,26 @@
 {
   "nodes": {
+    "itj_dev_tools": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790725826,
+        "narHash": "sha256-ptpZtnLlFytq37c4yngQQH1S6EQ/zmjMGzB9sQVA7NM=",
+        "ref": "refs/heads/mainline",
+        "rev": "8db7d13cef9372a51a30622105ba6961980508e1",
+        "revCount": 2719,
+        "type": "git",
+        "url": "https://github.com/Ivan-Johnson/DevTools.git"
+      },
+      "original": {
+        "ref": "refs/heads/mainline",
+        "type": "git",
+        "url": "https://github.com/Ivan-Johnson/DevTools.git"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1790635395,
@@ -16,6 +37,7 @@
     },
     "root": {
       "inputs": {
+        "itj_dev_tools": "itj_dev_tools",
         "nixpkgs": "nixpkgs"
       }
     }
